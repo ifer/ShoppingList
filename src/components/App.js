@@ -8,12 +8,10 @@ import {Switch, Route, Link, Redirect } from 'react-router-dom'
 import '../styles/app.css';
 
 import HeaderNavigation from "./Nav";
-import PatientsManage from './PatientsManage';
-import PatientsNotify from './PatientsNotify';
+
 import Home from './Home';
 import LoginForm from './LoginForm';
 // import Footer from './Footer';
-import Patient from './Patient';
 import Users from './Users';
 import {authentication} from '../js/authentication';
 import {eventManager} from '../js/eventmanager';
@@ -69,10 +67,7 @@ export default class App extends React.Component {
     			<Switch>
     				<PrivateRoute exact="exact" path="/" component={PatientsManage}/>
     				<Route path="/login" component={LoginForm}/>
-    				<PrivateRoute path="/patients" component={PatientsManage}/>
-    				<PrivateRoute path="/patient/:patid" component={Patient}/>
     				<PrivateRoute path="/users" component={Users}/>
-                    <PrivateRoute path="/patientsnotif" component={PatientsNotify}/>
     			</Switch>
     		</div>
     		{/* <Footer /> */}
