@@ -3,12 +3,12 @@
  */
 
 import React from 'react';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import FormGroup from 'react-bootstrap/FormGroup';
-import FormControl from 'react-bootstrap/FormControl';
-import ControlLabel from 'react-bootstrap/ControlLabel';
-import Navbar from 'react-bootstrap/Navbar';
+import Button from 'react-bootstrap/lib/Button';
+import Form from 'react-bootstrap/lib/Form';
+import FormGroup from 'react-bootstrap/lib/FormGroup';
+import FormControl from 'react-bootstrap/lib/FormControl';
+import ControlLabel from 'react-bootstrap/lib/ControlLabel';
+import Navbar from 'react-bootstrap/lib/Navbar';
 import { browserHistory } from 'react-router';
 
 import {messages} from "../js/messages";

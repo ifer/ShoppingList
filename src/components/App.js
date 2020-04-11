@@ -10,6 +10,7 @@ import '../styles/app.css';
 import HeaderNavigation from "./Nav";
 
 import Home from './Home';
+import ProductsManage from './ProductsManage';
 import LoginForm from './LoginForm';
 // import Footer from './Footer';
 import Users from './Users';
@@ -60,12 +61,12 @@ export default class App extends React.Component {
     	if (this._isMounted == false)
     		return null;
 
-    	// console.log("App render: loggedIn = " + loggedIn);
+    	console.log("App render: loggedIn = " + loggedIn);
     	return (<div >
     		<HeaderNavigation username={authentication.getCurrentUser()}/>
     		<div id="appcontent" className="app-content">
     			<Switch>
-    				<PrivateRoute exact="exact" path="/" component={PatientsManage}/>
+    				<PrivateRoute exact="exact" path="/" component={ProductsManage}/>
     				<Route path="/login" component={LoginForm}/>
     				<PrivateRoute path="/users" component={Users}/>
     			</Switch>

@@ -25,6 +25,8 @@ var messages = {
     btnReturn: "Επιστροφή",
     yes: "ΝΑΙ",
     no: "ΟΧΙ",
+    products: "Προϊόντα",
+    staticdata: "Δεδομένα",
     usersTitle: "Χρήστες εφαρμογής",
     userdata: "Στοιχεία χρήστη",
     usersId: "α/α",

@@ -3,14 +3,14 @@
  */
 
 import React from "react";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
-import NavItem from "react-bootstrap/NavItem";
-import NavDropdown from "react-bootstrap/NavDropdown";
-import MenuItem from "react-bootstrap/MenuItem";
-import Image from "react-bootstrap/Image";
+import Navbar from "react-bootstrap/lib/Navbar";
+import Nav from "react-bootstrap/lib/Nav";
+import NavItem from "react-bootstrap/lib/NavItem";
+import NavDropdown from "react-bootstrap/lib/NavDropdown";
+import MenuItem from "react-bootstrap/lib/MenuItem";
+import Image from "react-bootstrap/lib/Image";
 import Logout from "./Logout";
-import ControlLabel from 'react-bootstrap/ControlLabel';
+import ControlLabel from 'react-bootstrap/lib/ControlLabel';
 
 // import { Link } from 'react-router';
 
@@ -20,7 +20,7 @@ import {LinkContainer} from "react-router-bootstrap";
 import {messages} from "../js/messages";
 import {appinfo} from "../js/appinfo";
 
-import navimg from '../styles/img/gynclinic48.png';
+import navimg from '../styles/img/shopping48.png';
 // var navimg = require ("/styles/img/gynclinic48.png");
 
 export default class HeaderNavigation extends React.Component {
@@ -47,11 +47,11 @@ export default class HeaderNavigation extends React.Component {
 			</Navbar.Header>
 			<Navbar.Toggle/>
 			<Nav>
-				// <LinkContainer to="/patients">
-				// 	<NavItem eventKey={1} href="#">
-				// 		{messages.patients}
-				// 	</NavItem>
-				// </LinkContainer>
+				<LinkContainer to="/products">
+					<NavItem eventKey={1} href="#">
+						{messages.pruducts}
+					</NavItem>
+				</LinkContainer>
 				<NavDropdown eventKey={2} title={messages.staticdata} id="staticdata-dropdown">
 					<LinkContainer to="/users">
 						<NavItem eventKey={2.1} href="#">

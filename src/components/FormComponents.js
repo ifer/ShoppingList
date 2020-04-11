@@ -1,16 +1,16 @@
 import React from "react";
 import ReactDOM from 'react-dom';
 
-import Form from "react-bootstrap/Form";
-import FormGroup from "react-bootstrap/FormGroup";
-import FormControl from "react-bootstrap/FormControl";
-import ControlLabel from "react-bootstrap/ControlLabel";
-import Col from "react-bootstrap/Col";
-import Checkbox from "react-bootstrap/Checkbox";
-import Grid from "react-bootstrap/Grid";
-import Row from "react-bootstrap/Row";
+import Form from "react-bootstrap/lib/Form";
+import FormGroup from "react-bootstrap/lib/FormGroup";
+import FormControl from "react-bootstrap/lib/FormControl";
+import ControlLabel from "react-bootstrap/lib/ControlLabel";
+import Col from "react-bootstrap/lib/Col";
+import Checkbox from "react-bootstrap/lib/Checkbox";
+import Grid from "react-bootstrap/lib/Grid";
+import Row from "react-bootstrap/lib/Row";
 
-var DatePicker = require("react-bootstrap-date-picker");
+
 var dateFormat = "DD/MM/YYYY";
 
 import { messages } from "../js/messages";

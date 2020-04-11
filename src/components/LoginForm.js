@@ -1,13 +1,13 @@
 import React from 'react';
 
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import FormGroup from 'react-bootstrap/FormGroup';
-import FormControl from 'react-bootstrap/FormControl';
-import ControlLabel from 'react-bootstrap/ControlLabel';
-import Col from 'react-bootstrap/Col';
-import Checkbox from 'react-bootstrap/Checkbox';
+import Button from 'react-bootstrap/lib/Button';
+import Modal from 'react-bootstrap/lib/Modal';
+import Form from 'react-bootstrap/lib/Form';
+import FormGroup from 'react-bootstrap/lib/FormGroup';
+import FormControl from 'react-bootstrap/lib/FormControl';
+import ControlLabel from 'react-bootstrap/lib/ControlLabel';
+import Col from 'react-bootstrap/lib/Col';
+import Checkbox from 'react-bootstrap/lib/Checkbox';
 import {Redirect } from 'react-router-dom'
 import Dialog from 'react-bootstrap-dialog';
 

@@ -52,6 +52,7 @@ module.exports = (env) => {
       },
       plugins: [new ExtractTextPlugin("style.css")],        //Text css extractor
       devServer: {
+        port: 8080,  
         contentBase: "./src",
         publicPath: "/output",
         historyApiFallback: true
