@@ -27,6 +27,7 @@ var messages = {
     no: "ΟΧΙ",
     products: "Προϊόντα",
     staticdata: "Δεδομένα",
+    productsManage: "Διαχείριση Προϊόντων",
     usersTitle: "Χρήστες εφαρμογής",
     userdata: "Στοιχεία χρήστη",
     usersId: "α/α",

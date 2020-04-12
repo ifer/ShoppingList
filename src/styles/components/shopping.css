@@ -121,10 +121,10 @@
   color:DimGray;
 }
 
-.patlist-left-pane {
+.prodlist-left-pane {
   margin-right: 10px;
 }
-.patlist-search-criteria {
+.prodlist-search-criteria {
   color: darkred;
   text-align: center;
   margin-top: 20px;
@@ -132,33 +132,33 @@
   font-size: 16px;
   font-weight: 600;
 }
-.patlist-search-button {
+.prodlist-search-button {
   font-size: 11px;
   margin-right: 10px;
 }
-.patlist-cancel-button {
+.prodlist-cancel-button {
   font-size: 11px;
   margin-right: 10px;
   background-color: AliceBlue;
 }
-.patlist-search-label {
+.prodlist-search-label {
   font-size: 13px;
 }
-.patlist.search-field {
+.prodlist.search-field {
   margin-left: 7px;
 }
-.patlist-grid {
+.prodlist-grid {
   width: 100%;
   height: 100%;
   margin-left: 10px;
 
   /*border: 1px ridge lightgray;*/
 }
-.patlist-row {
+.prodlist-row {
   height: 100%;
   margin-bottom: 10px;
 }
-.patlist-search {
+.prodlist-search {
   height: calc(100vh - 60px - 30px - 40px);
   padding-left: 10px;
   /*
@@ -167,7 +167,7 @@
   */
 }
 
-.patlist-table {
+.prodlist-table {
   border-left-style: solid;
   border-left-color: lightgrey;
 }
@@ -230,7 +230,7 @@
   width: 40%;
 }
 
-.patlist-button-group {
+.prodlist-button-group {
   margin-left: -4px;
   margin-bottom: 5px;
 }

@@ -35,125 +35,54 @@ var dateFormat = "DD/MM/YYYY";
 
 var axios = require('axios');
 
-class PatientsManage extends React.Component {
+class ProductsManage extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.loadPatients = this.loadPatients.bind(this);
-		this.clearResults = this.clearResults.bind(this);
-		this.openPatient = this.openPatient.bind(this);
-		this.deletePatient = this.deletePatient.bind(this);
-		this.loadSearchForm = this.loadSearchForm.bind(this);
-		this.saveSearchForm = this.saveSearchForm.bind(this);
-		this.isSearchFormNull = this.isSearchFormNull.bind(this);
+		this.loadProducts = this.loadProducts.bind(this);
+		this.deleteProduct = this.deleteProduct.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
 		// this.searchform = null;
 		this.state = {
-			searchform: null,
-			patients: []
+			products: []
 		};
-
-		this.readonly = null;
 
 	}
 
 	componentDidMount() {
-		let sf = this.loadSearchForm();
-		if (!this.isSearchFormNull(sf)) { //Restores search form user input from session store
-			//and performs the search to fill the list
-			// this.searchform = sf;
-			// console.log("PATIENTSMANAGE componentDidMount searchform=" + JSON.stringify(this.state.searchform));
-			this.loadPatients(sf);
-		}
-		this.readonly = isUserReadonly(authentication.userobj);
+
+		this.loadProducts();
 	}
 
-	isSearchFormNull(sf) {
-		if (sf == null)
-			return true;
-
-		if (sf.lastname == null && sf.name == null && sf.phone == null && sf.profession == null && sf.email == null)
-			return (true);
-
-		return (false);
-	}
-
-	loadPatients(sf) {
+	loadProducts() {
 
 		// this.searchform = sf;
 		// this.saveSearchForm (sf);
 
 		axios({
-			method: 'post',
-			url: serverinfo.url_patientslist(),
-			data: sf,
+			method: 'get',
+			url: serverinfo.url_productlist(),
 			auth: {
 				username: authentication.username,
 				password: authentication.password
 			}
 		}).then(response => response.data).then(json => {
-			this.saveSearchForm(sf);
-			this.setState({searchform: sf, patients: json});
+			this.setState({ products: json});
 
-			this.readonly = isUserReadonly(authentication.userobj);
-// console.log("PATIENTSMANAGE loadPatients searchform=" + JSON.stringify(this.state.searchform ));
-// console.log("loadPatients: result " + JSON.stringify(json))	;
+console.log("loadProducts: result " + JSON.stringify(json))	;
 		}).catch(error => {
-			console.log("loadPatients error: " + error.message);
+			console.log("loadProducts error: " + error.message);
 		});
 	}
 
-	clearResults() {
 
-		// this.state.searchform.lastname = '';
-		// this.searchform.name = '';
-		// this.searchform.phone = '';
-		// this.searchform.profession = '';
-
-		let sf = {
-			lastname: null,
-			name: null,
-			phone: null,
-			email: null,
-			profession: null,
-			region: null
-		};
-
-		this.setState({searchform: sf, patients: []});
-		this.saveSearchForm(sf);
-	}
-
-	//Save search form user input to session store
-	saveSearchForm(sf) {
-
-		sessionStorage.setItem("searchform-" + authentication.username, JSON.stringify(sf));
-
-	}
-
-	//Load search form user input from session store
-	loadSearchForm() {
-		let s = sessionStorage.getItem("searchform-" + authentication.username);
-		if (s == null)
-			return (null);
-
-		let sf = JSON.parse(s);
-		return (sf);
-
-	}
-
-	openPatient(patient) {
-		const patid = patient.patid;
-		const path = `/patient/${patid}`;
-		this.props.history.push(path);
-	}
-
-	deletePatient(patobj) {
+	deleteProduct(prodobj) {
 		axios({
 			method: 'post',
-			url: serverinfo.url_delete_patient(),
-			data: patobj,
+			url: serverinfo.url_delproduct(),
+			data: prodobj,
 			auth: {
 				username: authentication.username,
 				password: authentication.password
@@ -168,37 +97,30 @@ class PatientsManage extends React.Component {
 		}).then(response => response.data).then(responseMessage => { //Detect app or db errors
 			//            console.log (responseMessage);
 			if (responseMessage.status == 0) { //SUCCESS
-				this.refs.patientslist.setSelectedPatid(null);
-				if (this.state.searchform != null) // Refresh list
-					this.loadPatients(this.state.searchform);
-				}
+				this.loadProducts();
+			}
 			else {
 				this.refs.dialog.showAlert(responseMessage.message, 'medium');
 				//            	onError();
 			}
 		}).catch(error => {
-			console.log("deletePatient error: " + error.message);
+			console.log("deleteProduct error: " + error.message);
 			this.refs.dialog.showAlert(error.message, 'medium');
 		});
 	}
 
 	render() {
-		// console.log("PATIENTSMANAGE render searchform=" + JSON.stringify(this.state.searchform ));
-		this.readonly = isUserReadonly(authentication.userobj);
-		// console.log("readonly="+this.readonly);
 		return (<div >
-			<Grid className="patlist-grid">
+			<Grid className="prodlist-grid">
 				<Row>
 					<Col md={12}>
-						<h3 className="page-title">{messages.patientsManage}</h3>
+						<h3 className="page-title">{messages.productsManage}</h3>
 					</Col>
 				</Row>
-				<Row className="patlist-row">
-					<Col md={2} className="patlist-search">
-						<Search loadSearchForm={this.loadSearchForm} onSubmit={this.loadPatients} clearResults={this.clearResults}/>
+				<Row className="prodlist-row">
+					<Col md={2} className="prodlist-search">
 					</Col>
-					<Col md={10} className="patlist-table">
-						<PatientsList ref="patientslist" patients={this.state.patients} openform={this.openPatient} deletePatient={this.deletePatient} readonly={this.readonly}/>
+					<Col md={10} className="prodlist-table">
 					</Col>
 				</Row>
 			</Grid>
@@ -208,140 +130,9 @@ class PatientsManage extends React.Component {
 	}
 }
 //Wrap into withRouter to have access to 'this.props.history'
-export default withRouter(PatientsManage);
+export default withRouter(ProductsManage);
 
-class Search extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.handleInputChange = this.handleInputChange.bind(this);
-		this.submit = this.submit.bind(this);
-		this.clear = this.clear.bind(this);
-
-		this.searchformObject = Object.assign({}, searchformObject);
-
-		this.state = {
-			cleared: false,
-			searchform: this.searchformObject
-		};
-	}
-
-	componentWillMount() {
-		let sf = this.props.loadSearchForm();
-		if (sf != null) {
-			this.searchformObject = sf;
-			this.setState({searchform: this.searchformObject});
-
-		}
-
-		// console.log("SEARCH componentWillMount searchform=" + JSON.stringify(this.props.searchform ));
-	}
-
-	submit() {
-		if (this.getFormValidationState() == 'error') {
-			return;
-		}
-		// console.log("submit: " + JSON.stringify(searchform))	;
-
-		//searchform: object imported from ../model/searchform
-		this.props.onSubmit(this.state.searchform);
-
-	}
-
-	clear() {
-
-		if (this.refs.refLastname)
-			this.refs.refLastname.clearTextInput();
-		if (this.refs.refName)
-			this.refs.refName.clearTextInput();
-		if (this.refs.refPhone)
-			this.refs.refPhone.clearTextInput();
-		if (this.refs.refEmail)
-			this.refs.refEmail.clearTextInput();
-		if (this.refs.refProfession)
-			this.refs.refProfession.clearTextInput();
-
-		let sf = {
-			lastname: null,
-			name: null,
-			phone: null,
-			email: null,
-			profession: null,
-			region: null
-		};
-
-		this.searchformObject = sf;
-		this.setState({searchform: this.searchformObject});
-
-		this.props.clearResults();
-
-		// this.setState({cleared: true});
-
-	}
-
-	getFormValidationState() {
-
-		if (!this.state.searchform.lastname &&
-			!this.state.searchform.name &&
-			!this.state.searchform.phone &&
-			!this.state.searchform.email &&
-			!this.state.searchform.profession &&
-			!this.state.searchform.region) {
-				this.refs.dialog.showAlert(messages.errorSearchEmptyCriteria, 'medium');
-			return 'error';
-		}
-
-		return ('success');
-	}
-
-	handleInputChange(event) {
-		const target = event.target;
-
-		let value = target.value;;
-		const name = target.name;
-
-		this.searchformObject[name] = value;
-
-		this.setState(() => ({ //Necessary for validation functions to work
-
-			searchform: this.searchformObject
-		}));
-
-		// console.log("handleInputChange: " + JSON.stringify(searchform))	;
-
-		// console.log (name +": " + this.searchformObject[name]);
-	}
-
-	render() {
-
-		// console.log("SEARCH render: " + JSON.stringify(this.state.searchform))	;
-
-		return (<div>
-			<Form horizontal>
-				<h3 className="patlist-search-criteria">{messages.searchCriteria}</h3>
-				<SearchTextFormControl name="lastname" initialValue={this.state.searchform.lastname || ''} onChange={this.handleInputChange} placeholder={messages.patientLastname} ref="refLastname"/>
-				<SearchTextFormControl name="name" initialValue={this.state.searchform.name || ''} onChange={this.handleInputChange} placeholder={messages.patientFirstname} ref="refName"/>
-				<SearchTextFormControl name="phone" initialValue={this.state.searchform.phone || ''} onChange={this.handleInputChange} placeholder={messages.patientPhone} ref="refPhone"/>
-				<SearchTextFormControl name="email" initialValue={this.state.searchform.email || ''} onChange={this.handleInputChange} placeholder={messages.patientEmail} ref="refEmail"/>
-				<SearchTextFormControl name="profession" initialValue={this.state.searchform.profession || ''} onChange={this.handleInputChange} placeholder={messages.patientProfession} ref="refProfession"/>
-				<SearchTextFormControl name="region" initialValue={this.state.searchform.region || ''} onChange={this.handleInputChange} placeholder={messages.patientRegion} ref="refRegion"/>
-
-				<FormGroup>
-					<Col md={12}>
-						<Button className="patlist-search-button" bsStyle="primary" onClick={this.submit}>
-							{messages.action_search}
-						</Button>
-
-						<Button className="patlist-cancel-button" onClick={this.clear}>
-							{messages.btnClear}
-						</Button>
-					</Col>
-				</FormGroup>
-			</Form>
-			<Dialog ref="dialog"/>
-		</div>);
-	}
-}
+// <PatientsList ref="patientslist" patients={this.state.patients} openform={this.openPatient} deleteProduct={this.deleteProduct} readonly={this.readonly}/>
 
 class PatientsList extends React.Component {
 	constructor(props) {
@@ -462,7 +253,7 @@ class PatientsList extends React.Component {
 
 		let customBody = (<div>
 			<div>
-				{messages.deletePatientConfirmBody1}
+				{messages.deleteProductConfirmBody1}
 			</div>
 			<span className='text-primary'>{messages.patform_lastname}: {patient.lastname}
 				<br/> {messages.patform_name}: {patient.name}
@@ -476,16 +267,16 @@ class PatientsList extends React.Component {
 				<p></p>
 			</div>
 			<div>
-				{messages.deletePatientConfirmBody2}
+				{messages.deleteProductConfirmBody2}
 			</div>
 		</div>);
 
 		this.refs.dialog.show({
-			title: messages.deletePatientConfirmTitle,
+			title: messages.deleteProductConfirmTitle,
 			body: customBody,
 			actions: [
 				Dialog.CancelAction(), Dialog.OKAction(() => {
-					this.props.deletePatient(patient);
+					this.props.deleteProduct(patient);
 				})
 			],
 			bsSize: 'medium'
@@ -533,7 +324,7 @@ class PatientsList extends React.Component {
 				}}>
 				<Row>
 					<Col md={9}>
-						<ButtonGroup bsClass="patlist-button-group">
+						<ButtonGroup bsClass="prodlist-button-group">
 							<Button bsStyle="success" onClick={this.openAddPatientForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_add}</Button>
 							<Button bsStyle="primary" onClick={this.openUpdPatientForm} className="table-action-button">{messages.action_update}</Button>
 							<Button bsStyle="danger" onClick={this.openDelPatientForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_delete}</Button>
@@ -560,87 +351,4 @@ class PatientsList extends React.Component {
 
 		</div>);
 	}
-}
-
-class SearchResultsInfo extends React.Component {
-	constructor(props) {
-		super(props);
-
-		this.getPatientsCount = this.getPatientsCount.bind(this);
-
-		this.state = {
-			resultsNumber: 0,
-			totalNumber: 0
-		};
-
-		this.total = 0;
-	}
-
-	componentWillMount() {
-		this.getPatientsCount();
-	}
-
-	componentDidMount() {
-
-		this.setState({totalNumber: this.total});
-	}
-
-	getPatientsCount() {
-		axios({
-			method: "get",
-			url: serverinfo.url_patientscount(),
-			auth: {
-				username: authentication.username,
-				password: authentication.password
-			}
-		}).then(response => response.data).then(json => {
-			this.total = json;
-			// this.setState({ totalNumber: json });
-			// console.log("loadPatients: result " + JSON.stringify(json))	;
-		}).catch(error => {
-			console.log("getPatientsCount error: " + error.message);
-		});
-	}
-
-	setResultsNumber(num) {
-		this.setState({resultsNumber: num, totalNumber: this.total});
-	}
-
-	render() {
-		if (this.state.resultsNumber == null && this.state.totalNumber == null)
-			return null;
-
-		let resinfo = '';
-		if (this.state.resultsNumber == null)
-			resinfo = '0 / ' + this.state.totalNumber;
-		else
-			resinfo = this.state.resultsNumber + ' / ' + this.state.totalNumber;
-
-		return (<div>
-			<Table striped bordered condensed className="resultsinfo-table">
-				<tbody>
-					<tr>
-						<td className="resultsinfo-col-label">
-							{messages.searchResultsNumber}
-						</td>
-						<td className="resultsinfo-col-value">
-							{resinfo}
-						</td>
-					</tr>
-				</tbody>
-			</Table>
-		</div>);
-	}
-}
-
-function getPhones(phone1, phone2) {
-	if (!phone1 && !phone2)
-		return ('');
-	else if (!phone2)
-		return (phone1);
-	else if (!phone1)
-		return (phone2);
-	else
-		return (phone1 + ', ' + phone2);
-
 }

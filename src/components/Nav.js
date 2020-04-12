@@ -28,6 +28,7 @@ export default class HeaderNavigation extends React.Component {
 		super(props);
 	}
 	render() {
+console.log("Inside NAV " + messages.products);
 		return (
         <Navbar fluid>
 			<Navbar.Header>
@@ -49,7 +50,7 @@ export default class HeaderNavigation extends React.Component {
 			<Nav>
 				<LinkContainer to="/products">
 					<NavItem eventKey={1} href="#">
-						{messages.pruducts}
+						{messages.products}
 					</NavItem>
 				</LinkContainer>
 				<NavDropdown eventKey={2} title={messages.staticdata} id="staticdata-dropdown">
