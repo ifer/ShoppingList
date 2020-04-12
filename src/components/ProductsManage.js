@@ -57,6 +57,7 @@ class ProductsManage extends React.Component {
 	}
 
 	loadProducts() {
+	console.log("loadProducts")	;
 
 		// this.searchform = sf;
 		// this.saveSearchForm (sf);
@@ -119,8 +120,10 @@ console.log("loadProducts: result " + JSON.stringify(json))	;
 				</Row>
 				<Row className="prodlist-row">
 					<Col md={2} className="prodlist-search">
+						<SelectCategory />
 					</Col>
 					<Col md={10} className="prodlist-table">
+						<ProductsList ref="productslist" products={this.state.products} openform={this.openProduct} deleteProduct={this.deleteProduct} />
 					</Col>
 				</Row>
 			</Grid>
@@ -132,21 +135,58 @@ console.log("loadProducts: result " + JSON.stringify(json))	;
 //Wrap into withRouter to have access to 'this.props.history'
 export default withRouter(ProductsManage);
 
-// <PatientsList ref="patientslist" patients={this.state.patients} openform={this.openPatient} deleteProduct={this.deleteProduct} readonly={this.readonly}/>
-
-class PatientsList extends React.Component {
+class SelectCategory extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.openAddPatientForm = this.openAddPatientForm.bind(this);
-		this.openUpdPatientForm = this.openUpdPatientForm.bind(this);
-		this.openDelPatientForm = this.openDelPatientForm.bind(this);
+		this.loadCategories = this.loadCategories.bind(this);
+
+		this.state = {
+			categories: null
+		}
+	}
+
+	componentDidMount() {
+
+		this.loadCategories();
+	}
+
+	loadCategories() {
+
+		axios({
+			method: 'get',
+			url: serverinfo.url_categorylist(),
+			auth: {
+				username: authentication.username,
+				password: authentication.password
+			}
+		}).then(response => response.data).then(json => {
+			this.setState({ categories: json});
+
+console.log("loadCategories: result " + JSON.stringify(json))	;
+		}).catch(error => {
+			console.log("loadCategories error: " + error.message);
+		});
+	}
+
+	render() {
+		return (<div></div>);
+	}
+
+}
+
+class ProductsList extends React.Component {
+	constructor(props) {
+		super(props);
+
+		this.openAddProductForm = this.openAddProductForm.bind(this);
+		this.openUpdProductForm = this.openUpdProductForm.bind(this);
+		this.openDelProductForm = this.openDelProductForm.bind(this);
 		this.onRowSelect = this.onRowSelect.bind(this);
-		this.getSelectedPatient = this.getSelectedPatient.bind(this);
+		this.getSelectedProduct = this.getSelectedProduct.bind(this);
 		this.remeasure = this.remeasure.bind(this);
-		this.getSelectedPatient = this.getSelectedPatient.bind(this);
 		this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
-		this.setSelectedPatid = this.setSelectedPatid.bind(this);
+		this.setSelectedProdid = this.setSelectedProdid.bind(this);
 
 		this.selectRowProp = {
 			mode: 'radio',
@@ -162,7 +202,7 @@ class PatientsList extends React.Component {
 			tableheight: "500px"
 		};
 
-		this.selectedPatid = null;
+		this.selectedProdid = null;
 
 		this._isMounted = false;
 
@@ -189,9 +229,8 @@ class PatientsList extends React.Component {
 	/* To scroll to bottom automatically */
 	componentDidUpdate() {
 		// this.node.scrollTop = this.node.scrollHeight;
-		if (this.refs.resultsInfo != undefined)
-			this.refs.resultsInfo.setResultsNumber(this.props.patients.length);
-		}
+
+	}
 
 	/* To dynamically change table height */
 	remeasure() {
@@ -205,63 +244,63 @@ class PatientsList extends React.Component {
 
 	onRowSelect(row, isSelected, e) {
 		if (isSelected)
-			this.selectedPatid = row.patid;
+			this.selectedProdid = row.prodid;
 		else
-			this.selectedPatid = null;
+			this.selectedProdid = null;
 
-			// console.log(this.selectedPatid);
+			// console.log(this.selectedProdid);
 		}
 
-	getSelectedPatient() {
+	getSelectedProduct() {
 
-		for (let i = 0; i < this.props.patients.length; i++) {
-			if (this.props.patients[i].patid == this.selectedPatid) {
-				return this.props.patients[i];
+		for (let i = 0; i < this.props.products.length; i++) {
+			if (this.props.products[i].prodid == this.selectedProdid) {
+				return this.props.products[i];
 			}
 		}
 		return (null);
 	}
 
-	setSelectedPatid(patid) {
-		this.selectedPatid = patid;
+	setSelectedProdid(prodid) {
+		this.selectedProdid = prodid;
 	}
 
-	openAddPatientForm() {
+	openAddProductForm() {
 
-		// console.log("Opening patient ADD ");
+		// console.log("Opening product ADD ");
 
-		var newPatient = Object.assign({}, patientObject);
-		this.props.openform(newPatient);
+		var newProduct = Object.assign({}, productObject);
+		this.props.openform(newProduct);
 
 	}
 
-	openUpdPatientForm() {
-		if (this.selectedPatid == null)
+	openUpdProductForm() {
+		if (this.selectedProdid == null)
 			return;
 
-		var patient = this.getSelectedPatient();
+		var product = this.getSelectedProduct();
 
-		this.props.openform(patient);
+		this.props.openform(product);
 
 	}
 
-	openDelPatientForm() {
-		if (this.selectedPatid == null)
+	openDelProductForm() {
+		if (this.selectedProdid == null)
 			return;
 
-		var patient = this.getSelectedPatient();
+		var product = this.getSelectedProduct();
 
 		let customBody = (<div>
 			<div>
 				{messages.deleteProductConfirmBody1}
 			</div>
-			<span className='text-primary'>{messages.patform_lastname}: {patient.lastname}
-				<br/> {messages.patform_name}: {patient.name}
-				<br/> {messages.patform_familyname}: {patient.familyname}
-				<br/> {messages.patform_address}: {patient.address}
-				<br/> {messages.patform_city}: {patient.city}
-				<br/> {messages.patform_birthdate}: {patient.birthdate}
-				<br/> {messages.patform_profession}: {patient.profession}
+			<span className='text-primary'>{messages.patform_lastname}: {product.lastname}
+				<br/> {messages.patform_name}: {product.name}
+				<br/> {messages.patform_familyname}: {product.familyname}
+				<br/> {messages.patform_address}: {product.address}
+				<br/> {messages.patform_city}: {product.city}
+				<br/> {messages.patform_birthdate}: {product.birthdate}
+				<br/> {messages.patform_profession}: {product.profession}
 			</span>
 			<div>
 				<p></p>
@@ -276,7 +315,7 @@ class PatientsList extends React.Component {
 			body: customBody,
 			actions: [
 				Dialog.CancelAction(), Dialog.OKAction(() => {
-					this.props.deleteProduct(patient);
+					this.props.deleteProduct(product);
 				})
 			],
 			bsSize: 'medium'
@@ -286,30 +325,22 @@ class PatientsList extends React.Component {
 	}
 
 	onRowDoubleClick(row) {
-		this.selectedPatid = row.patid;
-		this.openUpdPatientForm();
+		this.selectedProdid = row.prodid;
+		this.openUpdProductForm();
 	}
 
 	render() {
-		let patients = [];
-		for (let i = 0; i < this.props.patients.length; i++) {
-			var patient = {
-				patid: this.props.patients[i].patid,
-				fullname: this.props.patients[i].lastname + ' ' + this.props.patients[i].name,
-				birthdate: this.props.patients[i].birthdate,
-				age: calcAge(this.props.patients[i].birthdate),
-				address: this.props.patients[i].address,
-				city: this.props.patients[i].city,
-				phone: getPhones(this.props.patients[i].phone1, this.props.patients[i].phone2),
-				email: this.props.patients[i].email,
-				profession: this.props.patients[i].profession
-
+		let products = [];
+		for (let i = 0; i < this.props.products.length; i++) {
+			var product = {
+				prodid: this.props.products[i].prodid,
+				descr: this.props.products[i].descr
 			};
-			patients.push(patient);
+			products.push(product);
 		}
 
 		// if (this.refs.resultsInfo != undefined)
-		// 	this.refs.resultsInfo.setResultsNumber (this.props.patients.length);
+		// 	this.refs.resultsInfo.setResultsNumber (this.props.products.length);
 
 		const options = {
 			noDataText: messages.listEmpty,
@@ -325,26 +356,16 @@ class PatientsList extends React.Component {
 				<Row>
 					<Col md={9}>
 						<ButtonGroup bsClass="prodlist-button-group">
-							<Button bsStyle="success" onClick={this.openAddPatientForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_add}</Button>
-							<Button bsStyle="primary" onClick={this.openUpdPatientForm} className="table-action-button">{messages.action_update}</Button>
-							<Button bsStyle="danger" onClick={this.openDelPatientForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_delete}</Button>
+							<Button bsStyle="success" onClick={this.openAddProductForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_add}</Button>
+							<Button bsStyle="primary" onClick={this.openUpdProductForm} className="table-action-button">{messages.action_update}</Button>
+							<Button bsStyle="danger" onClick={this.openDelProductForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_delete}</Button>
 						</ButtonGroup>
-					</Col>
-					<Col md={3}>
-						<SearchResultsInfo ref="resultsInfo"/>
 					</Col>
 				</Row>
 			</Grid>
-			<BootstrapTable data={patients} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={this.selectRowProp} options={options}>
-				<TableHeaderColumn dataField="patid" dataAlign='left' headerAlign='center' className="table-header" width="5%" isKey={true}>{messages.patform_patid}</TableHeaderColumn>
-				<TableHeaderColumn dataField="fullname" dataAlign='left' headerAlign='center' className="table-header" width="18%">{messages.patientFullname}</TableHeaderColumn>
-				<TableHeaderColumn dataField="birthdate" dataAlign='left' headerAlign='center' className="table-header" width="7%">{messages.patientBirthdate}</TableHeaderColumn>
-				<TableHeaderColumn dataField="age" dataAlign='center' headerAlign='center' className="table-header" width="5%">{messages.patientAge}</TableHeaderColumn>
-				<TableHeaderColumn dataField="address" dataAlign='left' headerAlign='center' className="table-header" width="18%">{messages.patientAddress}</TableHeaderColumn>
-				<TableHeaderColumn dataField="city" dataAlign='left' headerAlign='center' className="table-header" width="10%">{messages.patientCity}</TableHeaderColumn>
-				<TableHeaderColumn dataField="phone" dataAlign='left' headerAlign='center' className="table-header" width="13%">{messages.patientPhone}</TableHeaderColumn>
-				<TableHeaderColumn dataField="email" dataAlign='left' headerAlign='center' className="table-header" width="12%">{messages.patientEmail}</TableHeaderColumn>
-				<TableHeaderColumn dataField="profession" dataAlign='left' headerAlign='center' className="table-header" width="12%">{messages.patientProfession}</TableHeaderColumn>
+			<BootstrapTable data={products} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={this.selectRowProp} options={options}>
+				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" width="5%" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
+				<TableHeaderColumn dataField="descr" dataAlign='left' headerAlign='center' className="table-header" width="18%">{messages.productDescr}</TableHeaderColumn>
 			</BootstrapTable>
 
 			<Dialog ref='dialog'/>
