@@ -9,6 +9,7 @@ import Col from 'react-bootstrap/lib/Col';
 import Form from 'react-bootstrap/lib/Form';
 import FormGroup from 'react-bootstrap/lib/FormGroup';
 import FormControl from 'react-bootstrap/lib/FormControl';
+import ListGroup from 'react-bootstrap/lib/ListGroup';
 import ControlLabel from 'react-bootstrap/lib/ControlLabel';
 import Table from 'react-bootstrap/lib/Table';
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
@@ -40,20 +41,22 @@ class ProductsManage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.loadProducts = this.loadProducts.bind(this);
+		this.loadCategories = this.loadCategories.bind(this);
 		this.deleteProduct = this.deleteProduct.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
 		// this.searchform = null;
 		this.state = {
-			products: []
+			products: [],
+			caregories: []
 		};
 
 	}
 
 	componentDidMount() {
-
 		this.loadProducts();
+		this.loadCategories();
 	}
 
 	loadProducts() {
@@ -78,6 +81,23 @@ console.log("loadProducts: result " + JSON.stringify(json))	;
 		});
 	}
 
+	loadCategories() {
+console.log("loadCategories");
+		axios({
+			method: 'get',
+			url: serverinfo.url_categorylist(),
+			auth: {
+				username: authentication.username,
+				password: authentication.password
+			}
+		}).then(response => response.data).then(json => {
+			this.setState({ categories: json});
+
+console.log("loadCategories: result " + JSON.stringify(json))	;
+		}).catch(error => {
+			console.log("loadCategories error: " + error.message);
+		});
+	}
 
 	deleteProduct(prodobj) {
 		axios({
@@ -120,7 +140,7 @@ console.log("loadProducts: result " + JSON.stringify(json))	;
 				</Row>
 				<Row className="prodlist-row">
 					<Col md={2} className="prodlist-search">
-						<SelectCategory />
+						<SelectCategory categories={this.state.categories} />
 					</Col>
 					<Col md={10} className="prodlist-table">
 						<ProductsList ref="productslist" products={this.state.products} openform={this.openProduct} deleteProduct={this.deleteProduct} />
@@ -135,45 +155,56 @@ console.log("loadProducts: result " + JSON.stringify(json))	;
 //Wrap into withRouter to have access to 'this.props.history'
 export default withRouter(ProductsManage);
 
+
+
+
+
 class SelectCategory extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.loadCategories = this.loadCategories.bind(this);
 
-		this.state = {
-			categories: null
-		}
 	}
 
 	componentDidMount() {
-
-		this.loadCategories();
 	}
 
-	loadCategories() {
 
-		axios({
-			method: 'get',
-			url: serverinfo.url_categorylist(),
-			auth: {
-				username: authentication.username,
-				password: authentication.password
-			}
-		}).then(response => response.data).then(json => {
-			this.setState({ categories: json});
-
-console.log("loadCategories: result " + JSON.stringify(json))	;
-		}).catch(error => {
-			console.log("loadCategories error: " + error.message);
-		});
-	}
 
 	render() {
-		return (<div></div>);
+		if (! this.props.categories){
+			return (<div />);
+		}
+		const buttonStyle = {
+			width: "100%",
+			margin: "5px"
+		}
+console.log('Categories2=' + JSON.stringify(this.props.categories));
+
+// this.props.categories.map(category => (
+//    console.log('descr=' + category.descr)
+// ));
+		return (
+
+			<div>
+			{this.props.categories.map((category, i) => (
+			   <Button key={i} style={buttonStyle}> {category.descr} </Button>
+			))}
+			</div>
+		);
 	}
 
 }
+
+// {this.props.categories.map((category, i) => (
+//    <ListGroup.Item key={i} action variant="success" > {category.descr} </ListGroup.Item>
+// ))}
+
+
+// <ListGroup>
+// 	<ListGroup.Item key={1} action variant="success"> ΤΡΟΦΙΜΑ </ListGroup.Item>
+// </ListGroup>
+
 
 class ProductsList extends React.Component {
 	constructor(props) {
