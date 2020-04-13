@@ -28,7 +28,6 @@ export default class HeaderNavigation extends React.Component {
 		super(props);
 	}
 	render() {
-console.log("Inside NAV " + messages.products);
 		return (
         <Navbar fluid>
 			<Navbar.Header>

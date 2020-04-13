@@ -66,7 +66,8 @@ export default class App extends React.Component {
     		<HeaderNavigation username={authentication.getCurrentUser()}/>
     		<div id="appcontent" className="app-content">
     			<Switch>
-    				<PrivateRoute exact="exact" path="/" component={ProductsManage}/>
+    				<PrivateRoute exact={true} path="/" component={ProductsManage}/>
+                    <Route path="/products" component={ProductsManage}/>
     				<Route path="/login" component={LoginForm}/>
     				<PrivateRoute path="/users" component={Users}/>
     			</Switch>

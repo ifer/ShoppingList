@@ -64,12 +64,12 @@
 }
 
 .my-navbar-brand-image {
-  background: url(/styles/img/gynclinic48.png) no-repeat 6px center;
+  background: url(/styles/img/shopping48.png) no-repeat 6px center;
   width: 48px;
   height: 48px;
   display: block;
   margin-left: 2px;
-  margin-right: 5px;
+  margin-right: 150px;
 }
 
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
@@ -82,7 +82,10 @@
     border-bottom-color: transparent !important
 
 }
-
+li.navbar-brand.active{
+    padding-left: 30px;
+    padding-right: 60px;
+}
 
 .nav-tabs > li > a {
   /*color: MediumPurple ;*/

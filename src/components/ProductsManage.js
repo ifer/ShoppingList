@@ -43,6 +43,7 @@ class ProductsManage extends React.Component {
 		this.loadProducts = this.loadProducts.bind(this);
 		this.loadCategories = this.loadCategories.bind(this);
 		this.deleteProduct = this.deleteProduct.bind(this);
+		this.applyListFilter = this.applyListFilter.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
@@ -60,7 +61,6 @@ class ProductsManage extends React.Component {
 	}
 
 	loadProducts() {
-	console.log("loadProducts")	;
 
 		// this.searchform = sf;
 		// this.saveSearchForm (sf);
@@ -73,16 +73,17 @@ class ProductsManage extends React.Component {
 				password: authentication.password
 			}
 		}).then(response => response.data).then(json => {
+			json.sort(productsCompare);
 			this.setState({ products: json});
 
-console.log("loadProducts: result " + JSON.stringify(json))	;
+// console.log("loadProducts: result " + JSON.stringify(json))	;
 		}).catch(error => {
 			console.log("loadProducts error: " + error.message);
 		});
 	}
 
 	loadCategories() {
-console.log("loadCategories");
+
 		axios({
 			method: 'get',
 			url: serverinfo.url_categorylist(),
@@ -93,10 +94,15 @@ console.log("loadCategories");
 		}).then(response => response.data).then(json => {
 			this.setState({ categories: json});
 
-console.log("loadCategories: result " + JSON.stringify(json))	;
+// console.log("loadCategories: result " + JSON.stringify(json))	;
 		}).catch(error => {
 			console.log("loadCategories error: " + error.message);
 		});
+	}
+
+	applyListFilter(filter){
+		// console.log("applyListFilter=" + filter);
+		this.refs.productslist.applyFilter(filter);
 	}
 
 	deleteProduct(prodobj) {
@@ -139,10 +145,10 @@ console.log("loadCategories: result " + JSON.stringify(json))	;
 					</Col>
 				</Row>
 				<Row className="prodlist-row">
-					<Col md={2} className="prodlist-search">
-						<SelectCategory categories={this.state.categories} />
+					<Col md={3} className="prodlist-search">
+						<SelectCategory categories={this.state.categories} applyListFilter={this.applyListFilter}/>
 					</Col>
-					<Col md={10} className="prodlist-table">
+					<Col md={9} className="prodlist-table">
 						<ProductsList ref="productslist" products={this.state.products} openform={this.openProduct} deleteProduct={this.deleteProduct} />
 					</Col>
 				</Row>
@@ -160,13 +166,13 @@ export default withRouter(ProductsManage);
 
 
 class SelectCategory extends React.Component {
+
 	constructor(props) {
 		super(props);
-
-
 	}
 
 	componentDidMount() {
+
 	}
 
 
@@ -175,35 +181,35 @@ class SelectCategory extends React.Component {
 		if (! this.props.categories){
 			return (<div />);
 		}
-		const buttonStyle = {
+
+		if (this.props.categories[0].catid != 0){
+			let allCategories = {catid: 0, descr: messages.allCategories};
+			this.props.categories.splice(0, 0, allCategories);
+		}
+		const buttonStyleNormal = {
 			width: "100%",
 			margin: "5px"
 		}
-console.log('Categories2=' + JSON.stringify(this.props.categories));
+		const buttonStyleAllCategories = {
+			width: "100%",
+			margin: "5px",
+			background: "Lavender"
+		}
 
-// this.props.categories.map(category => (
-//    console.log('descr=' + category.descr)
-// ));
 		return (
 
 			<div>
+			<h3 className="prodlist-search-criteria">{messages.categories}</h3>
 			{this.props.categories.map((category, i) => (
-			   <Button key={i} style={buttonStyle}> {category.descr} </Button>
+			   <Button key={i}
+			   	onClick={() => this.props.applyListFilter(category.catid)}
+				style={category.catid==0 ? buttonStyleAllCategories: buttonStyleNormal}> {category.descr} </Button>
 			))}
 			</div>
 		);
 	}
 
 }
-
-// {this.props.categories.map((category, i) => (
-//    <ListGroup.Item key={i} action variant="success" > {category.descr} </ListGroup.Item>
-// ))}
-
-
-// <ListGroup>
-// 	<ListGroup.Item key={1} action variant="success"> ΤΡΟΦΙΜΑ </ListGroup.Item>
-// </ListGroup>
 
 
 class ProductsList extends React.Component {
@@ -230,7 +236,8 @@ class ProductsList extends React.Component {
 
 		/* To dynamically change table height */
 		this.state = {
-			tableheight: "500px"
+			tableheight: "500px",
+			filtered: true
 		};
 
 		this.selectedProdid = null;
@@ -294,6 +301,19 @@ class ProductsList extends React.Component {
 
 	setSelectedProdid(prodid) {
 		this.selectedProdid = prodid;
+	}
+
+	applyFilter(filter){
+		// console.log("applyFilter=" + filter);
+
+		if (filter > 0){
+			this.refs.catid.applyFilter({number: filter, comparator: '='});
+			this.setState({filtered: true});
+		}
+		else {
+			this.refs.catid.cleanFiltered();
+			this.setState({filtered: false});
+		}
 	}
 
 	openAddProductForm() {
@@ -362,10 +382,12 @@ class ProductsList extends React.Component {
 
 	render() {
 		let products = [];
+
 		for (let i = 0; i < this.props.products.length; i++) {
 			var product = {
 				prodid: this.props.products[i].prodid,
-				descr: this.props.products[i].descr
+				descr: this.props.products[i].descr,
+				catid: this.props.products[i].catid
 			};
 			products.push(product);
 		}
@@ -397,10 +419,25 @@ class ProductsList extends React.Component {
 			<BootstrapTable data={products} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={this.selectRowProp} options={options}>
 				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" width="5%" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
 				<TableHeaderColumn dataField="descr" dataAlign='left' headerAlign='center' className="table-header" width="18%">{messages.productDescr}</TableHeaderColumn>
+				<TableHeaderColumn dataField="catid" ref="catid" filter={{type: 'NumberFilter', delay: 100}} hidden/>
 			</BootstrapTable>
 
 			<Dialog ref='dialog'/>
 
 		</div>);
 	}
+}
+
+function productsCompare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const prodA = a.descr.toUpperCase();
+    const prodB = b.descr.toUpperCase();
+
+    let comparison = 0;
+    if (prodA > prodB) {
+        comparison = 1;
+    } else if (prodA < prodB) {
+        comparison = -1;
+    }
+    return comparison;
 }
