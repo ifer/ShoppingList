@@ -28,6 +28,7 @@ import {productObject} from '../model/productObject';
 import {getContentHeight, calcAge, isUserReadonly} from "../js/utils";
 
 import {SearchTextFormControl} from './FormComponents';
+import ProductForm from "./ProductForm";
 
 // import Patient from './Patient';
 
@@ -43,7 +44,9 @@ class ProductsManage extends React.Component {
 		this.loadProducts = this.loadProducts.bind(this);
 		this.loadCategories = this.loadCategories.bind(this);
 		this.deleteProduct = this.deleteProduct.bind(this);
+		this.updateProduct = this.updateProduct.bind(this);
 		this.applyListFilter = this.applyListFilter.bind(this);
+		this.openProduct = this.openProduct.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
@@ -105,6 +108,56 @@ class ProductsManage extends React.Component {
 		this.refs.productslist.applyFilter(filter);
 	}
 
+	openProduct(product) {
+		const prodid = product.prodid;
+		const path = `/product/${prodid}`;
+		this.props.history.push(path);
+	}
+
+	updateProduct (prodobj, onSuccess, onError){
+		var resp;
+		var success = true;
+
+
+        axios({
+  			method: 'post',
+			url: serverinfo.url_updateproduct(),
+			data: prodobj,
+			auth: {
+    			username: authentication.username,
+    			password: authentication.password
+  			}
+		})
+       .then(response => {                       //Detect  http errors
+        	if (response.status != 200){
+        		this.refs.dialog.showAlert(response.statusText,'medium');
+        		return (null);
+        	}
+//        	console.log(response);
+        	return response;
+        })
+	  	.then(response => response.data)
+        .then(responseMessage => {              //Detect app or db errors
+//            console.log (responseMessage);
+            if (responseMessage.status == 0){ //SUCCESS
+           		this.loadProducts();
+            	onSuccess();
+              }
+            else {
+            	this.refs.dialog.showAlert(responseMessage.message, 'medium');
+//            	onError();
+            }
+        })
+		 .catch(error => {
+			 console.log("updateProduct error: " + error.message);
+			 this.refs.dialog.showAlert(error.message, 'medium');
+		 });
+
+        return success;
+	}
+
+
+
 	deleteProduct(prodobj) {
 		axios({
 			method: 'post',
@@ -149,7 +202,7 @@ class ProductsManage extends React.Component {
 						<SelectCategory categories={this.state.categories} applyListFilter={this.applyListFilter}/>
 					</Col>
 					<Col md={9} className="prodlist-table">
-						<ProductsList ref="productslist" products={this.state.products} openform={this.openProduct} deleteProduct={this.deleteProduct} />
+						<ProductsList ref="productslist" products={this.state.products} categories={this.state.categories} deleteProduct={this.deleteProduct} updateProduct={this.updateProduct}/>
 					</Col>
 				</Row>
 			</Grid>
@@ -169,9 +222,11 @@ class SelectCategory extends React.Component {
 
 	constructor(props) {
 		super(props);
+		this.categories = null;
 	}
 
 	componentDidMount() {
+
 
 	}
 
@@ -182,9 +237,12 @@ class SelectCategory extends React.Component {
 			return (<div />);
 		}
 
-		if (this.props.categories[0].catid != 0){
+		//Copy this.props.categories to categories using spead operator
+		this.categories  = [...this.props.categories];
+
+		if (this.categories[0].catid != 0){
 			let allCategories = {catid: 0, descr: messages.allCategories};
-			this.props.categories.splice(0, 0, allCategories);
+			this.categories.splice(0, 0, allCategories);
 		}
 		const buttonStyleNormal = {
 			width: "100%",
@@ -200,8 +258,8 @@ class SelectCategory extends React.Component {
 
 			<div>
 			<h3 className="prodlist-search-criteria">{messages.categories}</h3>
-			{this.props.categories.map((category, i) => (
-			   <Button key={i}
+			{this.categories.map((category, i) => (
+			   <Button key={i+1}
 			   	onClick={() => this.props.applyListFilter(category.catid)}
 				style={category.catid==0 ? buttonStyleAllCategories: buttonStyleNormal}> {category.descr} </Button>
 			))}
@@ -321,7 +379,7 @@ class ProductsList extends React.Component {
 		// console.log("Opening product ADD ");
 
 		var newProduct = Object.assign({}, productObject);
-		this.props.openform(newProduct);
+		this.refs.productForm.open(newProduct);
 
 	}
 
@@ -331,8 +389,7 @@ class ProductsList extends React.Component {
 
 		var product = this.getSelectedProduct();
 
-		this.props.openform(product);
-
+		this.refs.productForm.open(product);
 	}
 
 	openDelProductForm() {
@@ -421,6 +478,8 @@ class ProductsList extends React.Component {
 				<TableHeaderColumn dataField="descr" dataAlign='left' headerAlign='center' className="table-header" width="18%">{messages.productDescr}</TableHeaderColumn>
 				<TableHeaderColumn dataField="catid" ref="catid" filter={{type: 'NumberFilter', delay: 100}} hidden/>
 			</BootstrapTable>
+
+			<ProductForm ref='productForm' onModify={this.props.updateProduct} categories={this.props.categories}/>
 
 			<Dialog ref='dialog'/>
 
