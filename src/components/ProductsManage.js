@@ -103,9 +103,9 @@ class ProductsManage extends React.Component {
 		});
 	}
 
-	applyListFilter(filter){
+	applyListFilter(category){
 		// console.log("applyListFilter=" + filter);
-		this.refs.productslist.applyFilter(filter);
+		this.refs.productslist.applyFilter(category);
 	}
 
 	openProduct(product) {
@@ -227,7 +227,6 @@ class SelectCategory extends React.Component {
 
 	componentDidMount() {
 
-
 	}
 
 
@@ -241,7 +240,7 @@ class SelectCategory extends React.Component {
 		this.categories  = [...this.props.categories];
 
 		if (this.categories[0].catid != 0){
-			let allCategories = {catid: 0, descr: messages.allCategories};
+			let allCategories = {catid: -1, descr: messages.allCategories};
 			this.categories.splice(0, 0, allCategories);
 		}
 		const buttonStyleNormal = {
@@ -254,21 +253,25 @@ class SelectCategory extends React.Component {
 			background: "Lavender"
 		}
 
-		return (
+		console.log("render");
 
+		return (
 			<div>
 			<h3 className="prodlist-search-criteria">{messages.categories}</h3>
 			{this.categories.map((category, i) => (
-			   <Button key={i+1}
-			   	onClick={() => this.props.applyListFilter(category.catid)}
-				style={category.catid==0 ? buttonStyleAllCategories: buttonStyleNormal}> {category.descr} </Button>
+			   <Button key={i}
+			   	onClick={() => this.props.applyListFilter(category)}
+				style={category.catid==-1 ? buttonStyleAllCategories: buttonStyleNormal}
+				>
+					{category.descr}
+			   </Button>
 			))}
 			</div>
 		);
 	}
 
 }
-
+// active={category.catid==-1}
 
 class ProductsList extends React.Component {
 	constructor(props) {
@@ -295,7 +298,8 @@ class ProductsList extends React.Component {
 		/* To dynamically change table height */
 		this.state = {
 			tableheight: "500px",
-			filtered: true
+			filtered: true,
+			title: messages.allCategories
 		};
 
 		this.selectedProdid = null;
@@ -361,16 +365,17 @@ class ProductsList extends React.Component {
 		this.selectedProdid = prodid;
 	}
 
-	applyFilter(filter){
+	applyFilter(category){
 		// console.log("applyFilter=" + filter);
 
-		if (filter > 0){
-			this.refs.catid.applyFilter({number: filter, comparator: '='});
-			this.setState({filtered: true});
+		if (category.catid > 0){
+			this.refs.catid.applyFilter({number: category.catid, comparator: '='});
+			this.setState({title: category.descr});
 		}
 		else {
 			this.refs.catid.cleanFiltered();
-			this.setState({filtered: false});
+			this.setState({title: category.descr});
+			// this.setState({filtered: false});
 		}
 	}
 
@@ -379,7 +384,7 @@ class ProductsList extends React.Component {
 		// console.log("Opening product ADD ");
 
 		var newProduct = Object.assign({}, productObject);
-		this.refs.productForm.open(newProduct);
+		this.refs.productForm.open(newProduct, "add");
 
 	}
 
@@ -389,7 +394,7 @@ class ProductsList extends React.Component {
 
 		var product = this.getSelectedProduct();
 
-		this.refs.productForm.open(product);
+		this.refs.productForm.open(product, "update");
 	}
 
 	openDelProductForm() {
@@ -402,16 +407,12 @@ class ProductsList extends React.Component {
 			<div>
 				{messages.deleteProductConfirmBody1}
 			</div>
-			<span className='text-primary'>{messages.patform_lastname}: {product.lastname}
-				<br/> {messages.patform_name}: {product.name}
-				<br/> {messages.patform_familyname}: {product.familyname}
-				<br/> {messages.patform_address}: {product.address}
-				<br/> {messages.patform_city}: {product.city}
-				<br/> {messages.patform_birthdate}: {product.birthdate}
-				<br/> {messages.patform_profession}: {product.profession}
+			<span className='text-primary'>
+				<br/>
+				{product.descr}
 			</span>
 			<div>
-				<p></p>
+				<br />
 			</div>
 			<div>
 				{messages.deleteProductConfirmBody2}
@@ -475,7 +476,7 @@ class ProductsList extends React.Component {
 			</Grid>
 			<BootstrapTable data={products} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={this.selectRowProp} options={options}>
 				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" width="5%" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
-				<TableHeaderColumn dataField="descr" dataAlign='left' headerAlign='center' className="table-header" width="18%">{messages.productDescr}</TableHeaderColumn>
+				<TableHeaderColumn dataField="descr" dataAlign='left' headerAlign='center' className="table-header" width="18%">{this.state.title}</TableHeaderColumn>
 				<TableHeaderColumn dataField="catid" ref="catid" filter={{type: 'NumberFilter', delay: 100}} hidden/>
 			</BootstrapTable>
 

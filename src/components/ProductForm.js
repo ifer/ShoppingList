@@ -43,7 +43,11 @@ export default class ProductForm  extends React.Component {
 			  defaultOkLabel: messages.btnOK,
 			  defaultCancelLabel: messages.btnCancel,
 			  primaryClassName: 'btn-primary'
-		})
+		});
+
+        this.mode = null;
+
+
 
 	}
 
@@ -56,23 +60,20 @@ export default class ProductForm  extends React.Component {
 		this.setState({ showProductForm: false });
 	}
 
-	open(prodobj) {
+	open(prodobj, mode) {
 		this.prodobj = prodobj;
 
 	    this.setState({ showProductForm: true
 	    			});
 //		this.setState({sharemethod: this.findShareMethod(this.prodobj.expensetype)});
-
+        this.mode = mode;
 	}
 
 	submit () {
 		if (this.getFormValidationState() == 'error'){
 			return;
 		}
-//		if (this.getArbitraryShareValidationState() == 'error'){
-//			return;
-//		}
-console.log("SUBMIT prodobj=" + JSON.stringify(this.prodobj));
+
 
 		this.props.onModify(this.prodobj, this.addSuccess, this.addError);
 	}
@@ -99,7 +100,7 @@ console.log("SUBMIT prodobj=" + JSON.stringify(this.prodobj));
 			prodobj: this.prodobj
 		}));
 
-        console.log("prodobj=" + JSON.stringify(this.prodobj));
+        // console.log("prodobj=" + JSON.stringify(this.prodobj));
 //	    console.log (name +": " + this.prodobj[name]);
 	}
 
@@ -112,8 +113,8 @@ console.log("SUBMIT prodobj=" + JSON.stringify(this.prodobj));
 			prodobj: this.prodobj
 		}));
 
-	console.log ("Category Id: " + this.prodobj["catid"]);
-    console.log("prodobj=" + JSON.stringify(this.prodobj));
+	// console.log ("Category Id: " + this.prodobj["catid"]);
+    // console.log("prodobj=" + JSON.stringify(this.prodobj));
 	}
 
 
@@ -149,9 +150,13 @@ console.log("SUBMIT prodobj=" + JSON.stringify(this.prodobj));
 			return <div />;
 
 		let categories = [];
-		let emptyOption = <option key={0} value={null}>{}</option>;
-		categories.push (emptyOption);
-		for (let i=0; i< this.props.categories.length; i++){
+
+        if (this.mode === "add"){
+    		let emptyOption = <option key={0} value={null}>{}</option>;
+    		categories.push (emptyOption);
+        }
+
+        for (let i=0; i< this.props.categories.length; i++){
 			let option = <option key={this.props.categories[i].catid} value={this.props.categories[i].catid}>{this.props.categories[i].descr}</option>;
 			categories.push(option);
 		}
