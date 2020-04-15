@@ -1,5 +1,5 @@
-var categoryObject = {
+var CategoryObject = {
     catid: null,
-    descr: null,
+    descr: ''
 };
-export {categoryObject};
+export {CategoryObject};

@@ -166,7 +166,7 @@ export default class Users extends React.Component {
         .then(responseMessage => {              //Detect app or db errors
 //            console.log (responseMessage);
             if (responseMessage.status == 0){ //SUCCESS
-            	if (authentication.username === userobj,name){  //If user changes his/her own password
+            	if (authentication.username === userobj.name){  //If user changes his/her own password
 	             	authentication.password = userobj.passwd;  //Update authetication object with the new password
 	            	authentication.saveCookie (userobj.name, userobj.passwd) //Save cookie with the new password
             	}
@@ -346,12 +346,12 @@ export default class Users extends React.Component {
 			<div>
 	        <Grid style={{width: '100%'}}>
 	          <Row>
-	            <Col md={5}>
+	            <Col md={7}>
 	            	<h3 className="page-title">{messages.users}</h3>
 	            </Col>
 	          </Row>
 	          <Row>
-	            <Col md={4}>
+	            <Col md={6}>
 		          	<ButtonGroup bsClass="userlist-button-group">
 						<Button bsStyle="success" onClick={this.openAddUserForm} className="table-action-button">{messages.action_add}</Button>
 						<Button bsStyle="info" onClick={this.openUpdUserForm} className="table-action-button">{messages.action_update}</Button>

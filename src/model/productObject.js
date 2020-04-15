@@ -1,6 +1,6 @@
-var productObject = {
+var ProductObject = {
     prodid: null,
     descr: null,
     catid: null
 };
-export {productObject};
+export {ProductObject};

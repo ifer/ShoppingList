@@ -22,7 +22,7 @@ import {messages} from "../js/messages";
 import {serverinfo} from '../js/serverinfo';
 import {authentication} from '../js/authentication';
 // import {searchformObject} from '../model/searchformObject';
-import {productObject} from '../model/productObject';
+import {ProductObject} from '../model/ProductObject';
 // import {getContentHeight} from "../js/utils";
 
 import {getContentHeight, calcAge, isUserReadonly} from "../js/utils";
@@ -383,7 +383,7 @@ class ProductsList extends React.Component {
 
 		// console.log("Opening product ADD ");
 
-		var newProduct = Object.assign({}, productObject);
+		var newProduct = Object.assign({}, ProductObject);
 		this.refs.productForm.open(newProduct, "add");
 
 	}

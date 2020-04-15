@@ -53,8 +53,13 @@ export default class HeaderNavigation extends React.Component {
 					</NavItem>
 				</LinkContainer>
 				<NavDropdown eventKey={2} title={messages.staticdata} id="staticdata-dropdown">
-					<LinkContainer to="/users">
+					<LinkContainer to="/categories">
 						<NavItem eventKey={2.1} href="#">
+							{messages.categories}
+						</NavItem>
+					</LinkContainer>
+					<LinkContainer to="/users">
+						<NavItem eventKey={2.2} href="#">
 							{messages.users}
 						</NavItem>
 					</LinkContainer>

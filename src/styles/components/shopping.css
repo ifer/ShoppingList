@@ -430,7 +430,12 @@ li.navbar-brand.active{
 }
 
 .users-table {
-  width:700px;
+  width:850px;
+  margin-left: 10px
+}
+
+.categories-table {
+  width:850px;
   margin-left: 10px
 }
 

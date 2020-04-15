@@ -12,6 +12,8 @@ import HeaderNavigation from "./Nav";
 import Home from './Home';
 import ProductsManage from './ProductsManage';
 import LoginForm from './LoginForm';
+import Categories from './Categories';
+
 // import Footer from './Footer';
 import Users from './Users';
 import {authentication} from '../js/authentication';
@@ -68,6 +70,7 @@ export default class App extends React.Component {
     			<Switch>
     				<PrivateRoute exact={true} path="/" component={ProductsManage}/>
                     <Route path="/products" component={ProductsManage}/>
+                    <Route path="/categories" component={Categories}/>
     				<Route path="/login" component={LoginForm}/>
     				<PrivateRoute path="/users" component={Users}/>
     			</Switch>

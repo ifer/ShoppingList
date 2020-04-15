@@ -47,6 +47,12 @@ var messages = {
     deleteProductConfirmBody1: "Πρόκειται να διαγραφεί το προΙόν : ",
     deleteProductConfirmBody2: "Παρακαλώ επιβεβαιώστε.",
 
+    categoriesManage: "Διαχείριση Κατηγοριών Προϊόντων",
+    categoryDescr: "Όνομα κατηγορίας",
+    deleteCategoryConfirmTitle: "Διαγραφή κατηγορίας",
+    deleteCategoryConfirmBody1: "Πρόκειται να διαγραφεί η κατηγορία: ",
+    deleteCategoryConfirmBody2: "Παρακαλώ επιβεβαιώστε.",
+
     dateformat_gr: "ΗΗ/ΜΜ/ΕΕΕΕ",
     usersTitle: "Χρήστες εφαρμογής",
     userdata: "Στοιχεία χρήστη",
