@@ -36,6 +36,7 @@ var messages = {
     productProdid: "Κωδικός",
     productDescr: "Περιγραφή",
     productCategory: "Κατηγορία",
+    productQuantity: "Ποσότητα",
     productFormTitle: "Επεξεργασία προϊόντος",
     categories: "Κατηγορίες Προϊόντων",
     allCategories: "Όλες οι κατηγορίες",

@@ -47,6 +47,7 @@ class ProductsManage extends React.Component {
 		this.updateProduct = this.updateProduct.bind(this);
 		this.applyListFilter = this.applyListFilter.bind(this);
 		this.openProduct = this.openProduct.bind(this);
+		this.addQuantityField = this.addQuantityField.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
@@ -77,12 +78,25 @@ class ProductsManage extends React.Component {
 			}
 		}).then(response => response.data).then(json => {
 			json.sort(productsCompare);
+			// json = this.addQuantityField(json);
+			for (let i=0; i< json.length; i++){
+				json[i].quantity = 0;
+				json[i].selected = false;
+			}
+			// console.log("loadProducts: result " + JSON.stringify(json))	;
 			this.setState({ products: json});
 
-// console.log("loadProducts: result " + JSON.stringify(json))	;
+// console.log("loadProducts: result " + JSON.stringify(this.state.products))	;
 		}).catch(error => {
 			console.log("loadProducts error: " + error.message);
 		});
+	}
+
+	addQuantityField (products){
+		for (let i=0; i< products.length; i++){
+			products[i].quantity = 0;
+		}
+		return (products);
 	}
 
 	loadCategories() {
@@ -285,24 +299,18 @@ class ProductsList extends React.Component {
 		this.remeasure = this.remeasure.bind(this);
 		this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
 		this.setSelectedProdid = this.setSelectedProdid.bind(this);
+		this.isEditable= this.isEditable.bind(this);
 
-		this.selectRowProp = {
-			mode: 'radio',
-			bgColor: 'pink', // you should give a bgcolor, otherwise, you can't regonize which row has been selected
-			hideSelectColumn: true, // enable hide selection column.
-			clickToSelect: true, // you should enable clickToSelect, otherwise, you can't select column.
-			onSelect: this.onRowSelect
-
-		}
 
 		/* To dynamically change table height */
 		this.state = {
 			tableheight: "500px",
 			filtered: true,
-			title: messages.allCategories
+			title: messages.allCategories,
+			dummy: true
 		};
 
-		this.selectedProdid = null;
+		this.selectedProdids = [];
 
 		this._isMounted = false;
 
@@ -320,8 +328,8 @@ class ProductsList extends React.Component {
 		this.setState({tableheight: h})
 
 		window.addEventListener('resize', this.remeasure);
-	}
 
+	}
 	componentWillUnmount() {
 		this._isMounted = false;
 	}
@@ -343,13 +351,16 @@ class ProductsList extends React.Component {
 	}
 
 	onRowSelect(row, isSelected, e) {
-		if (isSelected)
-			this.selectedProdid = row.prodid;
-		else
-			this.selectedProdid = null;
-
-			// console.log(this.selectedProdid);
+		if (isSelected){
+			row.quantity=1;
+			row.selected = true;
 		}
+		else {
+			row.quantity=0;
+			row.selected = false;
+		}
+		this.setState({dummy: true});
+	}
 
 	getSelectedProduct() {
 
@@ -438,20 +449,24 @@ class ProductsList extends React.Component {
 		this.openUpdProductForm();
 	}
 
-	render() {
-		let products = [];
 
-		for (let i = 0; i < this.props.products.length; i++) {
-			var product = {
-				prodid: this.props.products[i].prodid,
-				descr: this.props.products[i].descr,
-				catid: this.props.products[i].catid
-			};
-			products.push(product);
+
+	isEditable (cell, row)  {
+		return (row.selected ? 1 : 0);
+    }
+
+	render() {
+
+		const selectRowProp = {
+			mode: 'checkbox',
+			clickToSelect: true, // you should enable clickToSelect, otherwise, you can't select column.
+			onSelect: this.onRowSelect
 		}
 
-		// if (this.refs.resultsInfo != undefined)
-		// 	this.refs.resultsInfo.setResultsNumber (this.props.products.length);
+		const cellEditProp = {
+  			mode: 'click',
+			blurToSave: true,
+		};
 
 		const options = {
 			noDataText: messages.listEmpty,
@@ -474,10 +489,12 @@ class ProductsList extends React.Component {
 					</Col>
 				</Row>
 			</Grid>
-			<BootstrapTable data={products} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={this.selectRowProp} options={options}>
-				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" width="5%" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
-				<TableHeaderColumn dataField="descr" dataAlign='left' headerAlign='center' className="table-header" width="18%">{this.state.title}</TableHeaderColumn>
+			<BootstrapTable data={this.props.products} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={selectRowProp} cellEdit={cellEditProp} options={options}>
+				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
+				<TableHeaderColumn dataField="descr" editable={false} dataAlign='left' headerAlign='center' className="table-header" width="90%">{this.state.title}</TableHeaderColumn>
+				<TableHeaderColumn dataField="quantity" ref="quantity" editable={this.isEditable}  dataAlign='center' headerAlign='center' className="table-header" width="7%">{messages.productQuantity}</TableHeaderColumn>
 				<TableHeaderColumn dataField="catid" ref="catid" filter={{type: 'NumberFilter', delay: 100}} hidden/>
+				<TableHeaderColumn dataField="selected"  width="3%"/>
 			</BootstrapTable>
 
 			<ProductForm ref='productForm' onModify={this.props.updateProduct} categories={this.props.categories}/>
@@ -487,6 +504,18 @@ class ProductsList extends React.Component {
 		</div>);
 	}
 }
+
+function isSelected(value, row) {
+// console.log("eValidator returns:"  + row['selected'] );
+	let ans;
+	if (row['selected'] == true)
+		return (1);
+	else {
+		return (0);
+	}
+  	return (ans);
+}
+
 
 function productsCompare(a, b) {
     // Use toUpperCase() to ignore character casing
