@@ -8,6 +8,11 @@
   margin-bottom: 2px;
 }
 
+
+.modal-content {
+    width: 700px;
+}
+
 .app-content {
 /*  height: calc(100vh - 60px - 30px - 10px);
   min-height: 480px;

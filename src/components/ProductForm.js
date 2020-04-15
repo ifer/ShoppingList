@@ -163,14 +163,14 @@ export default class ProductForm  extends React.Component {
 
 		return (
 	      <div>
-	        <Modal show={this.state.showProductForm} onHide={this.cancel} keyboard={true}  dialogClassName="">
-	          <Modal.Header closeButton >
+	        <Modal id="prod" show={this.state.showProductForm} onHide={this.cancel} keyboard={true}  dialogClassName="">
+	          <Modal.Header  closeButton >
 	            <Modal.Title>{messages.productFormTitle}</Modal.Title>
 	          </Modal.Header>
-	          <Modal.Body>
+	          <Modal.Body >
 		       <Form horizontal>
 
-	     	   <FormGroup controlId="descr"   >
+	     	   <FormGroup   controlId="descr"   >
 	     		<Col componentClass={ControlLabel} sm={2}>
 	     			{messages.productDescr}
 	     		</Col>
