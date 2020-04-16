@@ -37,6 +37,9 @@ var dateFormat = "DD/MM/YYYY";
 
 var axios = require('axios');
 
+const modeShoplist = 1;
+const modeEditProducts = 2;
+
 class ProductsManage extends React.Component {
 
 	constructor(props) {
@@ -48,13 +51,15 @@ class ProductsManage extends React.Component {
 		this.applyListFilter = this.applyListFilter.bind(this);
 		this.openProduct = this.openProduct.bind(this);
 		this.addQuantityField = this.addQuantityField.bind(this);
+		this.setPageTitle = this.setPageTitle.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
 		// this.searchform = null;
 		this.state = {
 			products: [],
-			caregories: []
+			caregories: [],
+			title: messages.modeShoplist
 		};
 
 	}
@@ -203,12 +208,16 @@ class ProductsManage extends React.Component {
 		});
 	}
 
+	setPageTitle (title){
+		this.setState({title: title});
+	}
+
 	render() {
 		return (<div >
 			<Grid className="prodlist-grid">
 				<Row>
 					<Col md={12}>
-						<h3 className="page-title">{messages.productsManage}</h3>
+						<h3 className="page-title">{this.state.title}</h3>
 					</Col>
 				</Row>
 				<Row className="prodlist-row">
@@ -216,7 +225,8 @@ class ProductsManage extends React.Component {
 						<SelectCategory categories={this.state.categories} applyListFilter={this.applyListFilter}/>
 					</Col>
 					<Col md={9} className="prodlist-table">
-						<ProductsList ref="productslist" products={this.state.products} categories={this.state.categories} deleteProduct={this.deleteProduct} updateProduct={this.updateProduct}/>
+						<ProductsList ref="productslist" products={this.state.products} categories={this.state.categories} deleteProduct={this.deleteProduct}
+						                                 updateProduct={this.updateProduct} setPageTitle={this.setPageTitle}/>
 					</Col>
 				</Row>
 			</Grid>
@@ -300,6 +310,9 @@ class ProductsList extends React.Component {
 		this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
 		this.setSelectedProdid = this.setSelectedProdid.bind(this);
 		this.isEditable= this.isEditable.bind(this);
+		this.toggleMode = this.toggleMode.bind(this);
+
+
 
 
 		/* To dynamically change table height */
@@ -307,10 +320,22 @@ class ProductsList extends React.Component {
 			tableheight: "500px",
 			filtered: true,
 			title: messages.allCategories,
-			dummy: true
+			mode: modeShoplist,
+			dummy: true,
+
 		};
 
-		this.selectedProdids = [];
+		this.selectRowProp = {
+			mode: 'checkbox',
+			clickToSelect: true, // you should enable clickToSelect, otherwise, you can't select column.
+			onSelect: this.onRowSelect,
+			bgColor: null,
+			hideSelectColumn: false,
+			clickToSelect: false
+		}
+
+
+		this.selectedProdid = null;
 
 		this._isMounted = false;
 
@@ -350,16 +375,52 @@ class ProductsList extends React.Component {
 
 	}
 
+	toggleMode(){
+		let newmode = (this.state.mode == modeShoplist) ? modeEditProducts : modeShoplist;
+		let pageTitle;
+
+		if (newmode ==  modeShoplist){
+			this.selectRowProp.mode = 'checkbox';
+			this.selectRowProp.bgColor = null;
+			this.selectRowProp.hideSelectColumn = false;
+			this.selectRowProp.clickToSelect = false;
+
+			pageTitle = messages.modeShoplist;
+
+		}
+		else {  //modeEditProducts
+			this.selectRowProp.mode = 'radio';
+			this.selectRowProp.bgColor = 'pink'; // you should give a bgcolor, otherwise, you can't regonize which row has been selected
+			this.selectRowProp.hideSelectColumn = true;  // enable hide selection column.
+			this.selectRowProp.clickToSelect =true;  // you should enable clickToSelect, otherwise, you can't select column.
+
+			pageTitle = messages.modeEditProducts;
+		}
+
+		this.props.setPageTitle(pageTitle);
+
+		this.setState({mode: newmode});
+
+	}
+
 	onRowSelect(row, isSelected, e) {
-		if (isSelected){
-			row.quantity=1;
-			row.selected = true;
+		if (mode == modeShoplist){
+			if (isSelected){
+				row.quantity=1;
+				row.selected = true;
+			}
+			else {
+				row.quantity=0;
+				row.selected = false;
+			}
+			this.setState({dummy: true});
 		}
 		else {
-			row.quantity=0;
-			row.selected = false;
+			if (isSelected)
+			  this.selectedProdid = row.prodid;
+			else
+			  this.selectedProdid = null;
 		}
-		this.setState({dummy: true});
 	}
 
 	getSelectedProduct() {
@@ -457,11 +518,6 @@ class ProductsList extends React.Component {
 
 	render() {
 
-		const selectRowProp = {
-			mode: 'checkbox',
-			clickToSelect: true, // you should enable clickToSelect, otherwise, you can't select column.
-			onSelect: this.onRowSelect
-		}
 
 		const cellEditProp = {
   			mode: 'click',
@@ -480,21 +536,37 @@ class ProductsList extends React.Component {
 					width: '100%'
 				}}>
 				<Row>
-					<Col md={9}>
-						<ButtonGroup bsClass="prodlist-button-group">
-							<Button bsStyle="success" onClick={this.openAddProductForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_add}</Button>
+					<Col md={5}>
+						<ButtonGroup bsClass="modeEditProducts-button-group" hidden={this.state.mode==modeEditProducts ? false : true}>
+							<Button bsStyle="success" onClick={this.openAddProductForm} className="table-action-button" >{messages.action_add}</Button>
 							<Button bsStyle="primary" onClick={this.openUpdProductForm} className="table-action-button">{messages.action_update}</Button>
-							<Button bsStyle="danger" onClick={this.openDelProductForm} className="table-action-button" disabled={this.props.readonly}>{messages.action_delete}</Button>
+							<Button bsStyle="danger" onClick={this.openDelProductForm} className="table-action-button" >{messages.action_delete}</Button>
+						</ButtonGroup>
+						<ButtonGroup bsClass="shoplist-button-group" hidden={this.state.mode==modeShoplist ? false : true}>
+							<Button bsStyle="primary" onClick={this.openAddProductForm} className="table-action-button">{messages.btnSave}</Button>
+							<Button bsStyle="danger" onClick={this.openUpdProductForm} className="table-action-button">{messages.btnClear}</Button>
+							<Button bsStyle="info" onClick={this.openDelProductForm} className="table-action-button"> {messages.btnPrint}</Button>
 						</ButtonGroup>
 					</Col>
+					<Col md={4}>
+					</Col>
+					<Col md={1}>
+						<div style={{"margin-left": "80px"}}>
+						<Button bsStyle="default" className="changemode-table-action-button" onClick={this.toggleMode} >
+							{this.state.mode==modeEditProducts ? messages.modeShoplist : messages.modeEditProducts}
+						</Button>
+						</div>
+					</Col>
 				</Row>
-			</Grid>
-			<BootstrapTable data={this.props.products} striped hover condensed height={this.state.tableheight} width='100%' ref="patTable" selectRow={selectRowProp} cellEdit={cellEditProp} options={options}>
+				</Grid>
+			<BootstrapTable data={this.props.products} striped hover condensed height={this.state.tableheight}
+			              width='100%' ref="patTable" selectRow={this.selectRowProp} cellEdit={cellEditProp} options={options}>
 				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
 				<TableHeaderColumn dataField="descr" editable={false} dataAlign='left' headerAlign='center' className="table-header" width="90%">{this.state.title}</TableHeaderColumn>
-				<TableHeaderColumn dataField="quantity" ref="quantity" editable={this.isEditable}  dataAlign='center' headerAlign='center' className="table-header" width="7%">{messages.productQuantity}</TableHeaderColumn>
+				<TableHeaderColumn dataField="quantity" ref="quantity" editable={this.isEditable}  dataAlign='center'  headerAlign='center'
+				                   className="table-header" width="10%" hidden={this.state.mode==modeShoplist ? false : true}>{messages.productQuantity}</TableHeaderColumn>
 				<TableHeaderColumn dataField="catid" ref="catid" filter={{type: 'NumberFilter', delay: 100}} hidden/>
-				<TableHeaderColumn dataField="selected"  width="3%"/>
+				<TableHeaderColumn dataField="selected"   hidden/>
 			</BootstrapTable>
 
 			<ProductForm ref='productForm' onModify={this.props.updateProduct} categories={this.props.categories}/>

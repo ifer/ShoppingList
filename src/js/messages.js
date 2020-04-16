@@ -38,6 +38,9 @@ var messages = {
     productCategory: "Κατηγορία",
     productQuantity: "Ποσότητα",
     productFormTitle: "Επεξεργασία προϊόντος",
+    modeShoplist: "Κατάρτιση λίστας αγορών",
+    modeEditProducts: "Διαχείριση Προϊόντων",
+
     categories: "Κατηγορίες Προϊόντων",
     allCategories: "Όλες οι κατηγορίες",
     categDescr: "Όνομα κατηγορίας",
