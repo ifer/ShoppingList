@@ -16,7 +16,8 @@ var authentication = {
   password: null,
   userobj: null,
   cookieName: 'shoplistsession',
-  cookieDuration: 1/3,   // Duration in days. If 0 leave default: until browser closes.( 1/3: 8 hours)
+  // cookieDuration: 1/3,   // Duration in days. If 0 leave default: until browser closes.( 1/3: 8 hours)
+  cookieDuration: 30,   // Duration in days. If 0 leave default: until browser closes.
 
   login(uname, pass, callback) {
 

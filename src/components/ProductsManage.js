@@ -40,6 +40,25 @@ var axios = require('axios');
 const modeShoplist = 1;
 const modeEditProducts = 2;
 
+
+
+// const selectRowPropEditProducts = {
+// 		  mode: 'radio',
+// 		  bgColor: 'pink', // you should give a bgcolor, otherwise, you can't regonize which row has been selected
+// 		  hideSelectColumn: true,  // enable hide selection column.
+// 		  clickToSelect: true,  // you should enable clickToSelect, otherwise, you can't select column.
+// 		  onSelect: this.onRowSelect
+// }
+//
+// this.selectRowProp = {
+// 		  mode: 'radio',
+// 		  bgColor: 'pink', // you should give a bgcolor, otherwise, you can't regonize which row has been selected
+// 		  hideSelectColumn: true,  // enable hide selection column.
+// 		  clickToSelect: true,  // you should enable clickToSelect, otherwise, you can't select column.
+// 		  onSelect: this.onRowSelect
+// }
+
+
 class ProductsManage extends React.Component {
 
 	constructor(props) {
@@ -311,9 +330,12 @@ class ProductsList extends React.Component {
 		this.setSelectedProdid = this.setSelectedProdid.bind(this);
 		this.isEditable= this.isEditable.bind(this);
 		this.toggleMode = this.toggleMode.bind(this);
+		this.unselectAll = this.unselectAll.bind(this);
+		this.onSelectAll = this.onSelectAll.bind(this);
 
 
 
+		this.selected = [];
 
 		/* To dynamically change table height */
 		this.state = {
@@ -321,18 +343,19 @@ class ProductsList extends React.Component {
 			filtered: true,
 			title: messages.allCategories,
 			mode: modeShoplist,
+			selected: [],
 			dummy: true,
 
 		};
 
+
 		this.selectRowProp = {
 			mode: 'checkbox',
-			clickToSelect: true, // you should enable clickToSelect, otherwise, you can't select column.
+			clickToSelect: false, // you should enable clickToSelect, otherwise, you can't select column.
 			onSelect: this.onRowSelect,
-			bgColor: null,
-			hideSelectColumn: false,
-			clickToSelect: false
-		}
+			selected: this.state.selected,
+			onSelectAll: this.onSelectAll,
+		};
 
 
 		this.selectedProdid = null;
@@ -385,6 +408,7 @@ class ProductsList extends React.Component {
 			this.selectRowProp.hideSelectColumn = false;
 			this.selectRowProp.clickToSelect = false;
 
+			// this.selectRowProp = this.selectRowPropShoplist;
 			pageTitle = messages.modeShoplist;
 
 		}
@@ -393,34 +417,77 @@ class ProductsList extends React.Component {
 			this.selectRowProp.bgColor = 'pink'; // you should give a bgcolor, otherwise, you can't regonize which row has been selected
 			this.selectRowProp.hideSelectColumn = true;  // enable hide selection column.
 			this.selectRowProp.clickToSelect =true;  // you should enable clickToSelect, otherwise, you can't select column.
+			// this.selectRowProp = this.selectRowPropEditProducts;
 
 			pageTitle = messages.modeEditProducts;
 		}
 
 		this.props.setPageTitle(pageTitle);
-
+		this.unselectAll();
 		this.setState({mode: newmode});
 
 	}
 
 	onRowSelect(row, isSelected, e) {
-		if (mode == modeShoplist){
+console.log("this.selectedProdid triggerred");
+		if (this.state.mode == modeShoplist){
 			if (isSelected){
 				row.quantity=1;
 				row.selected = true;
+				if (this.selected.indexOf(row.prodid) == -1){
+					this.selected.push(row.prodid);
+				}
 			}
 			else {
 				row.quantity=0;
 				row.selected = false;
+				let index = this.selected.indexOf(row.prodid);
+				if (index != -1){
+					this.selected.splice(index, 1);
+				}
+
 			}
-			this.setState({dummy: true});
+			this.setState({selected: this.selected});
 		}
 		else {
 			if (isSelected)
 			  this.selectedProdid = row.prodid;
 			else
 			  this.selectedProdid = null;
+console.log("this.selectedProdid=" + this.selectedProdid);
 		}
+	}
+
+	onSelectAll(isSelected, rows){
+
+		this.selected = [];
+
+		for (let i=0; i < rows.length; i++){
+			if (isSelected){  //action: selectAll
+				this.selected.push(rows[i].prodid);
+				if (rows[i].quantity == 0){
+					rows[i].quantity = 1;
+				}
+			}
+			else {  //action: unselectAll
+				rows[i].quantity = 0;
+			}
+		}
+		// if (isSelected){
+		// }
+		// else {
+		//
+		// }
+		this.setState({selected: this.selected});
+
+	}
+
+	unselectAll (){
+		for (let i=0; i < this.props.products.length; i++){
+			this.props.products[i].quantity = 0;
+		}
+		this.selected = [];
+		this.setState({selected: this.selected});
 	}
 
 	getSelectedProduct() {
@@ -526,11 +593,12 @@ class ProductsList extends React.Component {
 
 		const options = {
 			noDataText: messages.listEmpty,
-			onRowDoubleClick: this.onRowDoubleClick
+			// onRowDoubleClick: this.onRowDoubleClick
 		};
 
-		// console.log ("READONLY="+this.props.readonly);
-
+		this.selectRowProp.selected = this.state.selected;
+console.log ("selected=" + this.state.selected);
+console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
 		return (<div>
 			<Grid style={{
 					width: '100%'
@@ -544,7 +612,7 @@ class ProductsList extends React.Component {
 						</ButtonGroup>
 						<ButtonGroup bsClass="shoplist-button-group" hidden={this.state.mode==modeShoplist ? false : true}>
 							<Button bsStyle="primary" onClick={this.openAddProductForm} className="table-action-button">{messages.btnSave}</Button>
-							<Button bsStyle="danger" onClick={this.openUpdProductForm} className="table-action-button">{messages.btnClear}</Button>
+							<Button bsStyle="danger" onClick={this.unselectAll} className="table-action-button">{messages.btnClear}</Button>
 							<Button bsStyle="info" onClick={this.openDelProductForm} className="table-action-button"> {messages.btnPrint}</Button>
 						</ButtonGroup>
 					</Col>
@@ -560,7 +628,7 @@ class ProductsList extends React.Component {
 				</Row>
 				</Grid>
 			<BootstrapTable data={this.props.products} striped hover condensed height={this.state.tableheight}
-			              width='100%' ref="patTable" selectRow={this.selectRowProp} cellEdit={cellEditProp} options={options}>
+			              width='100%' ref="patTable" selectRow={this.selectRowProp} cellEdit={this.state.mode==modeShoplist ? cellEditProp : false} options={options}>
 				<TableHeaderColumn dataField="prodid" dataAlign='left' headerAlign='center' className="table-header" isKey={true} hidden>{messages.productProdid}</TableHeaderColumn>
 				<TableHeaderColumn dataField="descr" editable={false} dataAlign='left' headerAlign='center' className="table-header" width="90%">{this.state.title}</TableHeaderColumn>
 				<TableHeaderColumn dataField="quantity" ref="quantity" editable={this.isEditable}  dataAlign='center'  headerAlign='center'
