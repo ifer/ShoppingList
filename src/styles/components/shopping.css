@@ -180,6 +180,12 @@ li.navbar-brand.active{
   border-left-color: lightgrey;
 }
 
+/* Table header checkbox to select / unselect all */
+th {
+    background: LightSteelBlue;
+
+}
+
 .table-header {
   text-align: center;
   background: LightSteelBlue;
