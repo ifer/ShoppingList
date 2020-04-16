@@ -104,7 +104,7 @@ class ProductsManage extends React.Component {
 			json.sort(productsCompare);
 			// json = this.addQuantityField(json);
 			for (let i=0; i< json.length; i++){
-				json[i].quantity = 0;
+				json[i].quantity = '0';
 				json[i].selected = false;
 			}
 			// console.log("loadProducts: result " + JSON.stringify(json))	;
@@ -118,7 +118,7 @@ class ProductsManage extends React.Component {
 
 	addQuantityField (products){
 		for (let i=0; i< products.length; i++){
-			products[i].quantity = 0;
+			products[i].quantity = '0';
 		}
 		return (products);
 	}
@@ -432,14 +432,14 @@ class ProductsList extends React.Component {
 console.log("this.selectedProdid triggerred");
 		if (this.state.mode == modeShoplist){
 			if (isSelected){
-				row.quantity=1;
+				row.quantity='1';
 				row.selected = true;
 				if (this.selected.indexOf(row.prodid) == -1){
 					this.selected.push(row.prodid);
 				}
 			}
 			else {
-				row.quantity=0;
+				row.quantity='0';
 				row.selected = false;
 				let index = this.selected.indexOf(row.prodid);
 				if (index != -1){
@@ -465,12 +465,12 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		for (let i=0; i < rows.length; i++){
 			if (isSelected){  //action: selectAll
 				this.selected.push(rows[i].prodid);
-				if (rows[i].quantity == 0){
-					rows[i].quantity = 1;
+				if (rows[i].quantity == '0'){
+					rows[i].quantity = '1';
 				}
 			}
 			else {  //action: unselectAll
-				rows[i].quantity = 0;
+				rows[i].quantity = '0';
 			}
 		}
 		// if (isSelected){
@@ -484,7 +484,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 
 	unselectAll (){
 		for (let i=0; i < this.props.products.length; i++){
-			this.props.products[i].quantity = 0;
+			this.props.products[i].quantity = '0';
 		}
 		this.selected = [];
 		this.setState({selected: this.selected});
