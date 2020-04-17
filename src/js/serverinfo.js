@@ -20,6 +20,9 @@ var serverinfo = {
 	url_shopitemlist() {return this.base_url + "/api/shopitemlist"},
 	url_updateshopitem() {return this.base_url + "/api/updateshopitem"},
 	url_delshopitem() {return this.base_url + "/api/delshopitem"},
+	url_addshopitemlist() {return this.base_url + "/api/addshopitemlist"},
+	url_delshopitemlist() {return this.base_url + "/api/delshopitemlist"},
+	url_delallshopitems() {return this.base_url + "/api/delallshopitems"},
 
 	url_users() {return this.base_url +"/api/users"},
 	url_upduser() {return this.base_url +"/api/updateuser"},

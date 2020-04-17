@@ -33,6 +33,167 @@ function loadProducts(callback, errorcallback) {
     });
 }
 
+function loadCategories(callback, errorcallback) {
+
+    axios({
+        method: 'get',
+        url: serverinfo.url_categorylist(),
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => response.data).then(json => {
+        callback(json);
+
+// console.log("loadCategories: result " + JSON.stringify(json))	;
+    }).catch(error => {
+        errorcallback(error.message);
+        console.log("loadCategories error: " + error.message);
+    });
+}
+
+function updateProduct (prodobj, callback, errorcallback){
+
+        axios({
+  			method: 'post',
+			url: serverinfo.url_updateproduct(),
+			data: prodobj,
+			auth: {
+    			username: authentication.username,
+    			password: authentication.password
+  			}
+		})
+       .then(response => {                       //Detect  http errors
+        	if (response.status != 200){
+        		// this.refs.dialog.showAlert(response.statusText,'medium');
+                errorcallback(response.statusText);
+        		// return (null);
+        	}
+//        	console.log(response);
+        	return response;
+        })
+	  	.then(response => response.data)
+        .then(responseMessage => {              //Detect app or db errors
+//            console.log (responseMessage);
+            if (responseMessage.status == 0){ //SUCCESS
+                callback(responseMessage);
+              }
+            else {
+                errorcallback(response.statusText);
+        		// return (null);
+            	// this.refs.dialog.showAlert(responseMessage.message, 'medium');
+//            	onError();
+            }
+        })
+	    .catch(error => {
+             errorcallback(error);
+			 // console.log("updateProduct error: " + error.message);
+			 // this.refs.dialog.showAlert(error.message, 'medium');
+		 });
+
+        return success;
+}
+
+function deleteProduct(prodobj, callback, errorcallback) {
+    axios({
+        method: 'post',
+        url: serverinfo.url_delproduct(),
+        data: prodobj,
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => { //Detect  http errors
+        if (response.status != 200) {
+            // this.refs.dialog.showAlert(response.statusText, 'medium');
+            errorcallback(response.statusText);
+        }
+        //        	console.log(response);
+        return response;
+    }).then(response => response.data).then(responseMessage => { //Detect app or db errors
+        //            console.log (responseMessage);
+        if (responseMessage.status == 0) { //SUCCESS
+            callback(responseMessage);
+            // this.loadProducts();
+        }
+        else {
+            errorcallback(response.statusText);
+            // this.refs.dialog.showAlert(responseMessage.message, 'medium');
+                       	// onError();
+        }
+    }).catch(error => {
+        errorcallback(error);
+        // console.log("deleteProduct error: " + error.message);
+        // this.refs.dialog.showAlert(error.message, 'medium');
+    });
+}
+
+function addShopitemList(slist, callback, errorcallback) {
+    axios({
+        method: 'post',
+        url: serverinfo.url_addshopitemlist(),
+        data: slist,
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => { //Detect  http errors
+        if (response.status != 200) {
+            // this.refs.dialog.showAlert(response.statusText, 'medium');
+            errorcallback(response.statusText);
+        }
+        //        	console.log(response);
+        return response;
+    }).then(response => response.data).then(responseMessage => { //Detect app or db errors
+        //            console.log (responseMessage);
+        if (responseMessage.status == 0) { //SUCCESS
+            callback(responseMessage);
+            // this.loadProducts();
+        }
+        else {
+            errorcallback(response.statusText);
+            // this.refs.dialog.showAlert(responseMessage.message, 'medium');
+                       	// onError();
+        }
+    }).catch(error => {
+        errorcallback(error);
+        // console.log("deleteProduct error: " + error.message);
+        // this.refs.dialog.showAlert(error.message, 'medium');
+    });
+}
+
+function deleteAllShopitems(callback, errorcallback) {
+    axios({
+        method: 'post',
+        url: serverinfo.url_delallshopitems(),
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => { //Detect  http errors
+        if (response.status != 200) {
+            // this.refs.dialog.showAlert(response.statusText, 'medium');
+            errorcallback(response.statusText);
+        }
+        //        	console.log(response);
+        return response;
+    }).then(response => response.data).then(responseMessage => { //Detect app or db errors
+        //            console.log (responseMessage);
+        if (responseMessage.status == 0) { //SUCCESS
+            callback(responseMessage);
+            // this.loadProducts();
+        }
+        else {
+            errorcallback(response.statusText);
+            // this.refs.dialog.showAlert(responseMessage.message, 'medium');
+                       	// onError();
+        }
+    }).catch(error => {
+        errorcallback(error);
+        // console.log("deleteProduct error: " + error.message);
+        // this.refs.dialog.showAlert(error.message, 'medium');
+    });
+}
 
 function productsCompare(a, b) {
     // Use toUpperCase() to ignore character casing
@@ -48,4 +209,4 @@ function productsCompare(a, b) {
     return comparison;
 }
 
-export {loadProducts};
+export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems};

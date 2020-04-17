@@ -23,10 +23,11 @@ import {serverinfo} from '../js/serverinfo';
 import {authentication} from '../js/authentication';
 // import {searchformObject} from '../model/searchformObject';
 import {ProductObject} from '../model/ProductObject';
+import {ShopitemObject} from '../model/ShopitemObject';
 // import {getContentHeight} from "../js/utils";
 
 import {getContentHeight, calcAge, isUserReadonly} from "../js/utils";
-import {loadProducts}  from "../js/dbapi";
+import * as dbapi from "../js/dbapi";
 
 import {SearchTextFormControl} from './FormComponents';
 import ProductForm from "./ProductForm";
@@ -69,43 +70,47 @@ class ProductsManage extends React.Component {
 	}
 
 	componentDidMount() {
-		// this.loadProducts();
-		loadProducts( (res) => {
-		   this.setState({ products: res});	;
-		},(err) => {
-		    //error
-		    console.log("loadProducts error: " + err);
-		});
+		this.loadProducts();
 		this.loadCategories();
 	}
 
-	loadProducts() {
-
-		// this.searchform = sf;
-		// this.saveSearchForm (sf);
-
-		axios({
-			method: 'get',
-			url: serverinfo.url_productlist(),
-			auth: {
-				username: authentication.username,
-				password: authentication.password
-			}
-		}).then(response => response.data).then(json => {
-			json.sort(productsCompare);
-			// json = this.addQuantityField(json);
-			for (let i=0; i< json.length; i++){
-				json[i].quantity = '0';
-				json[i].selected = false;
-			}
-			// console.log("loadProducts: result " + JSON.stringify(json))	;
-			this.setState({ products: json});
-
-// console.log("loadProducts: result " + JSON.stringify(this.state.products))	;
-		}).catch(error => {
-			console.log("loadProducts error: " + error.message);
+	loadProducts(){
+		dbapi.loadProducts( (data) => {
+		   this.setState({ products: data});	;
+		},(err) => {
+		    console.log("loadProducts error: " + err);
 		});
 	}
+
+	loadCategories(){
+		dbapi.loadCategories( (data) => {
+		   this.setState({ categories: data});	;
+		},(err) => {
+		    console.log("loadCategories error: " + err);
+		});
+	}
+
+	updateProduct (prodobj, onSuccess, onError){
+		dbapi.updateProduct(prodobj, (data) => {
+			this.loadProducts();
+			onSuccess();
+		},(error) => {
+			this.refs.dialog.showAlert(error, 'medium');
+		    console.log("updateProduct error: " + error);
+		});
+	}
+
+	deleteProduct(prodobj) {
+		dbapi.deleteProduct(prodobj, (data) => {
+			this.loadProducts();
+		},(error) => {
+			this.refs.dialog.showAlert(error, 'medium');
+		    console.log("deleteProduct error: " + error);
+		});
+	}
+
+
+
 
 	addQuantityField (products){
 		for (let i=0; i< products.length; i++){
@@ -114,23 +119,6 @@ class ProductsManage extends React.Component {
 		return (products);
 	}
 
-	loadCategories() {
-
-		axios({
-			method: 'get',
-			url: serverinfo.url_categorylist(),
-			auth: {
-				username: authentication.username,
-				password: authentication.password
-			}
-		}).then(response => response.data).then(json => {
-			this.setState({ categories: json});
-
-// console.log("loadCategories: result " + JSON.stringify(json))	;
-		}).catch(error => {
-			console.log("loadCategories error: " + error.message);
-		});
-	}
 
 	applyListFilter(category){
 		// console.log("applyListFilter=" + filter);
@@ -143,80 +131,7 @@ class ProductsManage extends React.Component {
 		this.props.history.push(path);
 	}
 
-	updateProduct (prodobj, onSuccess, onError){
-		var resp;
-		var success = true;
 
-
-        axios({
-  			method: 'post',
-			url: serverinfo.url_updateproduct(),
-			data: prodobj,
-			auth: {
-    			username: authentication.username,
-    			password: authentication.password
-  			}
-		})
-       .then(response => {                       //Detect  http errors
-        	if (response.status != 200){
-        		this.refs.dialog.showAlert(response.statusText,'medium');
-        		return (null);
-        	}
-//        	console.log(response);
-        	return response;
-        })
-	  	.then(response => response.data)
-        .then(responseMessage => {              //Detect app or db errors
-//            console.log (responseMessage);
-            if (responseMessage.status == 0){ //SUCCESS
-           		this.loadProducts();
-            	onSuccess();
-              }
-            else {
-            	this.refs.dialog.showAlert(responseMessage.message, 'medium');
-//            	onError();
-            }
-        })
-		 .catch(error => {
-			 console.log("updateProduct error: " + error.message);
-			 this.refs.dialog.showAlert(error.message, 'medium');
-		 });
-
-        return success;
-	}
-
-
-
-	deleteProduct(prodobj) {
-		axios({
-			method: 'post',
-			url: serverinfo.url_delproduct(),
-			data: prodobj,
-			auth: {
-				username: authentication.username,
-				password: authentication.password
-			}
-		}).then(response => { //Detect  http errors
-			if (response.status != 200) {
-				this.refs.dialog.showAlert(response.statusText, 'medium');
-				return (null);
-			}
-			//        	console.log(response);
-			return response;
-		}).then(response => response.data).then(responseMessage => { //Detect app or db errors
-			//            console.log (responseMessage);
-			if (responseMessage.status == 0) { //SUCCESS
-				this.loadProducts();
-			}
-			else {
-				this.refs.dialog.showAlert(responseMessage.message, 'medium');
-				//            	onError();
-			}
-		}).catch(error => {
-			console.log("deleteProduct error: " + error.message);
-			this.refs.dialog.showAlert(error.message, 'medium');
-		});
-	}
 
 	setPageTitle (title){
 		this.setState({title: title});
@@ -323,6 +238,8 @@ class ProductsList extends React.Component {
 		this.toggleMode = this.toggleMode.bind(this);
 		this.unselectAll = this.unselectAll.bind(this);
 		this.onSelectAll = this.onSelectAll.bind(this);
+		this.saveSelected = this.saveSelected.bind(this);
+		this.findProductById = this.findProductById.bind(this);
 
 
 
@@ -479,6 +396,8 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		}
 		this.selected = [];
 		this.setState({selected: this.selected});
+
+
 	}
 
 	getSelectedProduct() {
@@ -563,6 +482,53 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		return;
 	}
 
+	saveSelected(){
+		// Delete all before adding
+		dbapi.deleteAllShopitems( (data) => {
+		},(error) => {
+			this.refs.dialog.showAlert(error, 'medium');
+			console.log("addShopitemList error: " + error);
+		});
+
+		if (this.state.selected.length == 0){
+			return;
+		}
+
+		let shopitemList = [];
+
+		for (let i=0; i<this.state.selected.length; i++){
+			let prodobj = this.findProductById(this.state.selected[i]);
+			if (prodobj == null){
+				continue;
+			}
+			let shopitem = Object.assign({}, ShopitemObject);
+			shopitem.itemid = null;
+			shopitem.prodid = prodobj.prodid;
+			shopitem.quantity = prodobj.quantity;
+
+			shopitemList.push(shopitem);
+		}
+
+		// this.props.addShopitemList(shopitemList);
+		dbapi.addShopitemList(shopitemList, (data) => {
+			// this.loadProducts();
+			// onSuccess();
+		},(error) => {
+			this.refs.dialog.showAlert(error, 'medium');
+			console.log("addShopitemList error: " + error);
+		});
+
+	}
+
+	findProductById(id) {
+		for (let i=0; i<this.props.products.length; i++){
+			if (this.props.products[i].prodid === id){
+				return this.props.products[i];
+			}
+		}
+		return (null);
+	}
+
 	onRowDoubleClick(row) {
 		this.selectedProdid = row.prodid;
 		this.openUpdProductForm();
@@ -588,8 +554,9 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		};
 
 		this.selectRowProp.selected = this.state.selected;
-console.log ("selected=" + this.state.selected);
-console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
+console.log("rows=" + JSON.stringify(this.props.products));
+// console.log ("selected=" + this.state.selected);
+// console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
 		return (<div>
 			<Grid style={{
 					width: '100%'
@@ -602,7 +569,7 @@ console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
 							<Button bsStyle="danger" onClick={this.openDelProductForm} className="table-action-button" >{messages.action_delete}</Button>
 						</ButtonGroup>
 						<ButtonGroup bsClass="shoplist-button-group" hidden={this.state.mode==modeShoplist ? false : true}>
-							<Button bsStyle="primary" onClick={this.openAddProductForm} className="table-action-button">{messages.btnSave}</Button>
+							<Button bsStyle="primary" onClick={this.saveSelected} className="table-action-button">{messages.btnSave}</Button>
 							<Button bsStyle="danger" onClick={this.unselectAll} className="table-action-button">{messages.btnClear}</Button>
 							<Button bsStyle="info" onClick={this.openDelProductForm} className="table-action-button"> {messages.btnPrint}</Button>
 						</ButtonGroup>
