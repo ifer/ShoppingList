@@ -26,6 +26,7 @@ import {ProductObject} from '../model/ProductObject';
 // import {getContentHeight} from "../js/utils";
 
 import {getContentHeight, calcAge, isUserReadonly} from "../js/utils";
+import {loadProducts}  from "../js/dbapi";
 
 import {SearchTextFormControl} from './FormComponents';
 import ProductForm from "./ProductForm";
@@ -41,22 +42,6 @@ const modeShoplist = 1;
 const modeEditProducts = 2;
 
 
-
-// const selectRowPropEditProducts = {
-// 		  mode: 'radio',
-// 		  bgColor: 'pink', // you should give a bgcolor, otherwise, you can't regonize which row has been selected
-// 		  hideSelectColumn: true,  // enable hide selection column.
-// 		  clickToSelect: true,  // you should enable clickToSelect, otherwise, you can't select column.
-// 		  onSelect: this.onRowSelect
-// }
-//
-// this.selectRowProp = {
-// 		  mode: 'radio',
-// 		  bgColor: 'pink', // you should give a bgcolor, otherwise, you can't regonize which row has been selected
-// 		  hideSelectColumn: true,  // enable hide selection column.
-// 		  clickToSelect: true,  // you should enable clickToSelect, otherwise, you can't select column.
-// 		  onSelect: this.onRowSelect
-// }
 
 
 class ProductsManage extends React.Component {
@@ -84,7 +69,13 @@ class ProductsManage extends React.Component {
 	}
 
 	componentDidMount() {
-		this.loadProducts();
+		// this.loadProducts();
+		loadProducts( (res) => {
+		   this.setState({ products: res});	;
+		},(err) => {
+		    //error
+		    console.log("loadProducts error: " + err);
+		});
 		this.loadCategories();
 	}
 
