@@ -12,6 +12,7 @@ import FormControl from 'react-bootstrap/lib/FormControl';
 import ListGroup from 'react-bootstrap/lib/ListGroup';
 import ControlLabel from 'react-bootstrap/lib/ControlLabel';
 import Table from 'react-bootstrap/lib/Table';
+import Image from 'react-bootstrap/lib/Image'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import Dialog from 'react-bootstrap-dialog';
 
@@ -574,10 +575,18 @@ console.log("rows=" + JSON.stringify(this.props.products));
 							<Button bsStyle="info" onClick={this.openDelProductForm} className="table-action-button"> {messages.btnPrint}</Button>
 						</ButtonGroup>
 					</Col>
-					<Col md={4}>
+					<Col md={1}>
 					</Col>
 					<Col md={1}>
-						<div style={{"margin-left": "80px"}}>
+						<span style={{"margin-left":"10px"}}>
+						<Image src="../styles/img/shopping32.png"  />
+						<span style={{"margin-left":"5px", "color":"blue"}}>{this.state.selected.length}</span>
+						</span>
+					</Col>
+					<Col md={2}>
+					</Col>
+					<Col md={1}>
+						<div style={{"flex-direction": "column", "display": "flex", "align-items": "flex-end"}}>
 						<Button bsStyle="default" className="changemode-table-action-button" onClick={this.toggleMode} >
 							{this.state.mode==modeEditProducts ? messages.modeShoplist : messages.modeEditProducts}
 						</Button>

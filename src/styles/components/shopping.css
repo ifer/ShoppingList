@@ -262,9 +262,12 @@ th {
 }
 
 .changemode-table-action-button {
-  margin-right: 10px;
+  /* margin-right: 10px; */
   font-size: 12px;
   width: 170px;
+  /* flex-direction: column;
+  display: flex;
+  align-items: flex-end; */
 }
 
 
