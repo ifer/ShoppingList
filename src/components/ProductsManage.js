@@ -59,6 +59,7 @@ class ProductsManage extends React.Component {
 		this.openProduct = this.openProduct.bind(this);
 		this.addQuantityField = this.addQuantityField.bind(this);
 		this.setPageTitle = this.setPageTitle.bind(this);
+		this.findShopitemByProdid = this.findShopitemByProdid.bind(this);
 
 		Dialog.setOptions({defaultOkLabel: messages.btnOK, defaultCancelLabel: messages.btnCancel, primaryClassName: 'btn-primary'})
 
@@ -73,20 +74,37 @@ class ProductsManage extends React.Component {
 	}
 
 	componentDidMount() {
-		this.loadProducts();
-		this.loadCategories();
 		this.loadShopitems();
+		this.loadCategories();
+	}
+
+	loadShopitems(){
+		dbapi.loadShopitems( (data) => {
+		   this.setState({ shopitems: data});
+		   // console.log("shopitems=" + JSON.stringify(this.state.shopitems));
+		   this.loadProducts();
+		},(err) => {
+		    console.log("loadShopitems error: " + err);
+		});
 	}
 
 	loadProducts(){
 		dbapi.loadProducts( (data) => {
 			data.sort(productsCompare);
-	        // json = this.addQuantityField(json);
+			// console.log("data=" + JSON.stringify(data));
 	        for (let i=0; i< data.length; i++){
-	            data[i].quantity = '0';
-	            data[i].selected = false;
+				let shopitem = this.findShopitemByProdid (data[i].prodid);
+				if (shopitem != null){
+					data[i].selected = true;
+					data[i].quantity = shopitem.quantity;
+				}
+				else {
+					data[i].quantity = '0';
+		            data[i].selected = false;
+				}
 	        }
 		   this.setState({ products: data});	;
+		   this.refs.productslist.loadSelected();
 		},(err) => {
 		    console.log("loadProducts error: " + err);
 		});
@@ -100,13 +118,16 @@ class ProductsManage extends React.Component {
 		});
 	}
 
-	loadShopitems(){
-		dbapi.loadShopitems( (data) => {
-		   this.setState({ shopitems: data});
-		   console.log("shopitems=" + JSON.stringify(this.state.shopitems));
-		},(err) => {
-		    console.log("loadShopitems error: " + err);
-		});
+	findShopitemByProdid (prodid) {
+		for (let i=0; i<this.state.shopitems.length; i++){
+// console.log("looking for " + prodid + " in " + JSON.stringify(this.state.shopitems[i]));
+
+			if (this.state.shopitems[i].prodid == prodid){
+// console.log("Found!");
+				return this.state.shopitems[i];
+			}
+		}
+		return (null);
 	}
 
 	updateProduct (prodobj, onSuccess, onError){
@@ -259,10 +280,12 @@ class ProductsList extends React.Component {
 		this.onSelectAll = this.onSelectAll.bind(this);
 		this.saveSelected = this.saveSelected.bind(this);
 		this.findProductById = this.findProductById.bind(this);
+		this.loadSelected = this.loadSelected.bind(this);
 
 
 
 		this.selected = [];
+
 
 		/* To dynamically change table height */
 		this.state = {
@@ -270,7 +293,7 @@ class ProductsList extends React.Component {
 			filtered: true,
 			title: messages.allCategories,
 			mode: modeShoplist,
-			selected: [],
+			selected: this.selected,
 			dummy: true,
 
 		};
@@ -280,7 +303,7 @@ class ProductsList extends React.Component {
 			mode: 'checkbox',
 			clickToSelect: false, // you should enable clickToSelect, otherwise, you can't select column.
 			onSelect: this.onRowSelect,
-			selected: this.state.selected,
+			selected: [],
 			onSelectAll: this.onSelectAll,
 		};
 
@@ -304,7 +327,10 @@ class ProductsList extends React.Component {
 
 		window.addEventListener('resize', this.remeasure);
 
+
 	}
+
+
 	componentWillUnmount() {
 		this._isMounted = false;
 	}
@@ -312,7 +338,7 @@ class ProductsList extends React.Component {
 	/* To scroll to bottom automatically */
 	componentDidUpdate() {
 		// this.node.scrollTop = this.node.scrollHeight;
-
+;
 	}
 
 	/* To dynamically change table height */
@@ -321,6 +347,20 @@ class ProductsList extends React.Component {
 		if (this._isMounted) {
 			let h = getContentHeight();
 			this.setState({tableheight: h})
+		}
+
+	}
+
+	loadSelected(){
+		if ( this.props.products && this.props.products.length > 0){
+			console.log("props.products=" + JSON.stringify( this.props.products));
+			this.selected = [];
+			for (let i=0; i< this.props.products.length; i++){
+				if (this.props.products[i].selected == true){
+					this.selected.push(this.props.products[i].prodid);
+				}
+			}
+			// this.setState({selected: this.seleceted});
 		}
 
 	}
@@ -547,6 +587,8 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		return (null);
 	}
 
+
+
 	onRowDoubleClick(row) {
 		this.selectedProdid = row.prodid;
 		this.openUpdProductForm();
@@ -571,7 +613,19 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 			// onRowDoubleClick: this.onRowDoubleClick
 		};
 
-		this.selectRowProp.selected = this.state.selected;
+		// if ( this.props.products && this.props.products.length > 0){
+		// 	console.log("props.products=" + JSON.stringify( this.props.products));
+		// 	this.selected = [];
+		// 	for (let i=0; i< this.props.products.length; i++){
+		// 		if (this.props.products[i].selected == true){
+		// 			this.selected.push(this.props.products[i].prodid);
+		// 		}
+		// 	}
+		// 	// this.setState({selected: this.seleceted});
+		// }
+
+
+		this.selectRowProp.selected = this.selected;
 // console.log("rows=" + JSON.stringify(this.props.products));
 // console.log ("selected=" + this.state.selected);
 // console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
