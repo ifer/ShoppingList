@@ -71,6 +71,8 @@ class ProductsManage extends React.Component {
 			title: messages.modeShoplist
 		};
 
+		this.selected=[];
+
 	}
 
 	componentDidMount() {
@@ -97,6 +99,7 @@ class ProductsManage extends React.Component {
 				if (shopitem != null){
 					data[i].selected = true;
 					data[i].quantity = shopitem.quantity;
+					this.selected.push(shopitem.prodid);
 				}
 				else {
 					data[i].quantity = '0';
@@ -191,7 +194,7 @@ class ProductsManage extends React.Component {
 					</Col>
 					<Col md={9} className="prodlist-table">
 						<ProductsList ref="productslist" products={this.state.products} categories={this.state.categories} deleteProduct={this.deleteProduct}
-						                                 updateProduct={this.updateProduct} setPageTitle={this.setPageTitle}/>
+						                                 updateProduct={this.updateProduct} selected={this.selected} setPageTitle={this.setPageTitle}/>
 					</Col>
 				</Row>
 			</Grid>
@@ -352,16 +355,18 @@ class ProductsList extends React.Component {
 	}
 
 	loadSelected(){
-		if ( this.props.products && this.props.products.length > 0){
-			console.log("props.products=" + JSON.stringify( this.props.products));
-			this.selected = [];
-			for (let i=0; i< this.props.products.length; i++){
-				if (this.props.products[i].selected == true){
-					this.selected.push(this.props.products[i].prodid);
-				}
-			}
-			// this.setState({selected: this.seleceted});
-		}
+		this.selected = this.props.selected;
+		this.setState({selected: this.seleceted});
+		// if ( this.props.products && this.props.products.length > 0){
+		// 	console.log("props.products=" + JSON.stringify( this.props.products));
+		// 	this.selected = [];
+		// 	for (let i=0; i< this.props.products.length; i++){
+		// 		if (this.props.products[i].selected == true){
+		// 			this.selected.push(this.props.products[i].prodid);
+		// 		}
+		// 	}
+		// 	// this.setState({selected: this.seleceted});
+		// }
 
 	}
 
@@ -548,14 +553,14 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 			console.log("addShopitemList error: " + error);
 		});
 
-		if (this.state.selected.length == 0){
+		if (this.selected.length == 0){
 			return;
 		}
 
 		let shopitemList = [];
 
-		for (let i=0; i<this.state.selected.length; i++){
-			let prodobj = this.findProductById(this.state.selected[i]);
+		for (let i=0; i<this.selected.length; i++){
+			let prodobj = this.findProductById(this.selected[i]);
 			if (prodobj == null){
 				continue;
 			}
@@ -627,7 +632,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 
 		this.selectRowProp.selected = this.selected;
 // console.log("rows=" + JSON.stringify(this.props.products));
-// console.log ("selected=" + this.state.selected);
+// console.log ("selected=" + this.selected);
 // console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
 		return (<div>
 			<Grid style={{
@@ -652,7 +657,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 						<span >
 							<Image src="../styles/img/shopping32.png"  />
 							<span style={{marginLeft:"5px", color:"blue"}}>
-								{this.state.selected.length}
+								{this.selected.length}
 							</span>
 						</span>
 					</Col>
