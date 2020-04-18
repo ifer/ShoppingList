@@ -19,12 +19,6 @@ function loadProducts(callback, errorcallback) {
             password: authentication.password
         }
     }).then(response => response.data).then(json => {
-        json.sort(productsCompare);
-        // json = this.addQuantityField(json);
-        for (let i=0; i< json.length; i++){
-            json[i].quantity = '0';
-            json[i].selected = false;
-        }
         callback(json);
 // console.log("loadProducts: result " + JSON.stringify(this.state.products))	;
     }).catch(error => {
@@ -48,7 +42,26 @@ function loadCategories(callback, errorcallback) {
 // console.log("loadCategories: result " + JSON.stringify(json))	;
     }).catch(error => {
         errorcallback(error.message);
-        console.log("loadCategories error: " + error.message);
+        // console.log("loadCategories error: " + error.message);
+    });
+}
+
+function loadShopitems(callback, errorcallback) {
+
+    axios({
+        method: 'get',
+        url: serverinfo.url_shopitemlist(),
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => response.data).then(json => {
+        callback(json);
+
+// console.log("loadCategories: result " + JSON.stringify(json))	;
+    }).catch(error => {
+        errorcallback(error.message);
+        // console.log("loadShopitems error: " + error.message);
     });
 }
 
@@ -195,18 +208,6 @@ function deleteAllShopitems(callback, errorcallback) {
     });
 }
 
-function productsCompare(a, b) {
-    // Use toUpperCase() to ignore character casing
-    const prodA = a.descr.toUpperCase();
-    const prodB = b.descr.toUpperCase();
 
-    let comparison = 0;
-    if (prodA > prodB) {
-        comparison = 1;
-    } else if (prodA < prodB) {
-        comparison = -1;
-    }
-    return comparison;
-}
 
-export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems};
+export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems, loadShopitems};

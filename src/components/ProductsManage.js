@@ -52,6 +52,7 @@ class ProductsManage extends React.Component {
 		super(props);
 		this.loadProducts = this.loadProducts.bind(this);
 		this.loadCategories = this.loadCategories.bind(this);
+		this.loadShopitems = this.loadShopitems.bind(this);
 		this.deleteProduct = this.deleteProduct.bind(this);
 		this.updateProduct = this.updateProduct.bind(this);
 		this.applyListFilter = this.applyListFilter.bind(this);
@@ -65,6 +66,7 @@ class ProductsManage extends React.Component {
 		this.state = {
 			products: [],
 			caregories: [],
+			shopitems: [],
 			title: messages.modeShoplist
 		};
 
@@ -73,10 +75,17 @@ class ProductsManage extends React.Component {
 	componentDidMount() {
 		this.loadProducts();
 		this.loadCategories();
+		this.loadShopitems();
 	}
 
 	loadProducts(){
 		dbapi.loadProducts( (data) => {
+			data.sort(productsCompare);
+	        // json = this.addQuantityField(json);
+	        for (let i=0; i< data.length; i++){
+	            data[i].quantity = '0';
+	            data[i].selected = false;
+	        }
 		   this.setState({ products: data});	;
 		},(err) => {
 		    console.log("loadProducts error: " + err);
@@ -88,6 +97,15 @@ class ProductsManage extends React.Component {
 		   this.setState({ categories: data});	;
 		},(err) => {
 		    console.log("loadCategories error: " + err);
+		});
+	}
+
+	loadShopitems(){
+		dbapi.loadShopitems( (data) => {
+		   this.setState({ shopitems: data});
+		   console.log("shopitems=" + JSON.stringify(this.state.shopitems));
+		},(err) => {
+		    console.log("loadShopitems error: " + err);
 		});
 	}
 
@@ -338,7 +356,6 @@ class ProductsList extends React.Component {
 	}
 
 	onRowSelect(row, isSelected, e) {
-console.log("this.selectedProdid triggerred");
 		if (this.state.mode == modeShoplist){
 			if (isSelected){
 				row.quantity='1';
@@ -555,14 +572,14 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		};
 
 		this.selectRowProp.selected = this.state.selected;
-console.log("rows=" + JSON.stringify(this.props.products));
+// console.log("rows=" + JSON.stringify(this.props.products));
 // console.log ("selected=" + this.state.selected);
 // console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
 		return (<div>
 			<Grid style={{
-					width: '100%'
+					width: '100%',marginRight:"0px",paddingRight:"0px"
 				}}>
-				<Row>
+				<Row style={{width: '100%',marginRight:"0px",paddingRight:"0px"}}>
 					<Col md={5}>
 						<ButtonGroup bsClass="modeEditProducts-button-group" hidden={this.state.mode==modeEditProducts ? false : true}>
 							<Button bsStyle="success" onClick={this.openAddProductForm} className="table-action-button" >{messages.action_add}</Button>
@@ -577,20 +594,20 @@ console.log("rows=" + JSON.stringify(this.props.products));
 					</Col>
 					<Col md={1}>
 					</Col>
-					<Col md={1}>
-						<span style={{"margin-left":"10px"}}>
-						<Image src="../styles/img/shopping32.png"  />
-						<span style={{"margin-left":"5px", "color":"blue"}}>{this.state.selected.length}</span>
+					<Col md={3} style={{flexDirection: "column", display: "flex", alignItems: "flexCenter"}}>
+						<span >
+							<Image src="../styles/img/shopping32.png"  />
+							<span style={{marginLeft:"5px", color:"blue"}}>
+								{this.state.selected.length}
+							</span>
 						</span>
 					</Col>
-					<Col md={2}>
-					</Col>
 					<Col md={1}>
-						<div style={{"flex-direction": "column", "display": "flex", "align-items": "flex-end"}}>
+					</Col>
+					<Col md={2} style={{marginRight:"0px",paddingRight:"0px", flexDirection: "column", display: "flex", alignItems: "flexEnd"}}>
 						<Button bsStyle="default" className="changemode-table-action-button" onClick={this.toggleMode} >
 							{this.state.mode==modeEditProducts ? messages.modeShoplist : messages.modeEditProducts}
 						</Button>
-						</div>
 					</Col>
 				</Row>
 				</Grid>
@@ -610,6 +627,8 @@ console.log("rows=" + JSON.stringify(this.props.products));
 
 		</div>);
 	}
+	// <div style={{"width":"100%","flex-direction": "column", "display": "flex", "align-items": "flex-end"}}></div>
+
 }
 
 function isSelected(value, row) {
