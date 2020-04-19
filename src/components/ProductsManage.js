@@ -16,7 +16,13 @@ import Image from 'react-bootstrap/lib/Image'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
 import Dialog from 'react-bootstrap-dialog';
 
-import {withRouter} from "react-router-dom";
+import {
+	BrowserRouter as Router,
+	withRouter,
+	Route,
+	Link,
+	Prompt
+} from "react-router-dom";
 
 import '../styles/app.css';
 import {messages} from "../js/messages";
@@ -79,6 +85,7 @@ class ProductsManage extends React.Component {
 		this.loadShopitems();
 		this.loadCategories();
 	}
+
 
 	loadShopitems(){
 		dbapi.loadShopitems( (data) => {
@@ -179,6 +186,8 @@ class ProductsManage extends React.Component {
 	setPageTitle (title){
 		this.setState({title: title});
 	}
+
+
 
 	render() {
 		return (<div >
@@ -284,7 +293,8 @@ class ProductsList extends React.Component {
 		this.saveSelected = this.saveSelected.bind(this);
 		this.findProductById = this.findProductById.bind(this);
 		this.loadSelected = this.loadSelected.bind(this);
-
+		this.leaveOperation = this.leaveOperation.bind(this);
+		this.intentToToggleMode = this.intentToToggleMode.bind(this);
 
 
 		this.selected = [];
@@ -312,6 +322,8 @@ class ProductsList extends React.Component {
 
 
 		this.selectedProdid = null;
+
+		this.selectedChanged = false;
 
 		this._isMounted = false;
 
@@ -357,22 +369,29 @@ class ProductsList extends React.Component {
 	loadSelected(){
 		this.selected = this.props.selected;
 		this.setState({selected: this.seleceted});
-		// if ( this.props.products && this.props.products.length > 0){
-		// 	console.log("props.products=" + JSON.stringify( this.props.products));
-		// 	this.selected = [];
-		// 	for (let i=0; i< this.props.products.length; i++){
-		// 		if (this.props.products[i].selected == true){
-		// 			this.selected.push(this.props.products[i].prodid);
-		// 		}
-		// 	}
-		// 	// this.setState({selected: this.seleceted});
-		// }
+		this.selectedChanged = false;
 
 	}
 
+	intentToToggleMode (){
+		if (this.selectedChanged == true){
+			this.leaveOperation(
+				() => {
+					this.selectedChanged = false;
+					this.toggleMode();
+					// this.props.history.goBack(); //Return
+				}
+			);
+		}
+	}
+
 	toggleMode(){
+
 		let newmode = (this.state.mode == modeShoplist) ? modeEditProducts : modeShoplist;
+
 		let pageTitle;
+
+
 
 		if (newmode ==  modeShoplist){
 			this.selectRowProp.mode = 'checkbox';
@@ -419,13 +438,14 @@ class ProductsList extends React.Component {
 
 			}
 			this.setState({selected: this.selected});
+			this.selectedChanged = true;
 		}
 		else {
 			if (isSelected)
 			  this.selectedProdid = row.prodid;
 			else
 			  this.selectedProdid = null;
-console.log("this.selectedProdid=" + this.selectedProdid);
+// console.log("this.selectedProdid=" + this.selectedProdid);
 		}
 	}
 
@@ -450,6 +470,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		//
 		// }
 		this.setState({selected: this.selected});
+		this.selectedChanged = true;
 
 	}
 
@@ -459,8 +480,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		}
 		this.selected = [];
 		this.setState({selected: this.selected});
-
-
+		this.selectedChanged = true;
 	}
 
 	getSelectedProduct() {
@@ -535,7 +555,8 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 			title: messages.deleteProductConfirmTitle,
 			body: customBody,
 			actions: [
-				Dialog.CancelAction(), Dialog.OKAction(() => {
+				Dialog.CancelAction(),
+				Dialog.OKAction(() => {
 					this.props.deleteProduct(product);
 				})
 			],
@@ -554,6 +575,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		});
 
 		if (this.selected.length == 0){
+			this.selectedChanged = false;
 			return;
 		}
 
@@ -576,6 +598,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		dbapi.addShopitemList(shopitemList, (data) => {
 			// this.loadProducts();
 			// onSuccess();
+			this.selectedChanged = false;
 		},(error) => {
 			this.refs.dialog.showAlert(error, 'medium');
 			console.log("addShopitemList error: " + error);
@@ -605,6 +628,27 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 		return (row.selected ? 1 : 0);
     }
 
+	//leave page confirmation and action trigger
+	leaveOperation (ok, cancel){
+		this.refs.dialog.show({
+			  title: messages.cancelTitle,
+		      body:  messages.notsavedWarning,
+		      actions: [
+		        Dialog.CancelAction(() => {
+					if (cancel){
+						cancel();
+					}
+				}),
+		        Dialog.OKAction(() => {
+					if (ok){
+		        		ok();
+					}
+		        })
+		      ],
+			  bsSize: 'medium'
+		    });
+	}
+
 	render() {
 
 
@@ -617,7 +661,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 			noDataText: messages.listEmpty,
 			// onRowDoubleClick: this.onRowDoubleClick
 		};
-
+console.log("this.selectedChanged = " + this.selectedChanged);
 		// if ( this.props.products && this.props.products.length > 0){
 		// 	console.log("props.products=" + JSON.stringify( this.props.products));
 		// 	this.selected = [];
@@ -664,7 +708,7 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 					<Col md={1}>
 					</Col>
 					<Col md={2} style={{marginRight:"0px",paddingRight:"0px", flexDirection: "column", display: "flex", alignItems: "flexEnd"}}>
-						<Button bsStyle="default" className="changemode-table-action-button" onClick={this.toggleMode} >
+						<Button bsStyle="default" className="changemode-table-action-button" onClick={this.intentToToggleMode} >
 							{this.state.mode==modeEditProducts ? messages.modeShoplist : messages.modeEditProducts}
 						</Button>
 					</Col>
@@ -689,6 +733,9 @@ console.log("this.selectedProdid=" + this.selectedProdid);
 	// <div style={{"width":"100%","flex-direction": "column", "display": "flex", "align-items": "flex-end"}}></div>
 
 }
+//Wrap into withRouter to have access to 'this.props.history'
+withRouter(ProductsList);
+
 
 function isSelected(value, row) {
 // console.log("eValidator returns:"  + row['selected'] );
