@@ -90,7 +90,7 @@ function updateProduct (prodobj, callback, errorcallback){
 //            console.log (responseMessage);
             if (responseMessage.status == 0){ //SUCCESS
                 callback(responseMessage);
-              }
+            }
             else {
                 errorcallback(response.statusText);
         		// return (null);
@@ -104,7 +104,7 @@ function updateProduct (prodobj, callback, errorcallback){
 			 // this.refs.dialog.showAlert(error.message, 'medium');
 		 });
 
-        return success;
+        // return success;
 }
 
 function deleteProduct(prodobj, callback, errorcallback) {

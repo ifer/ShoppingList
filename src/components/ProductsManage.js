@@ -74,7 +74,8 @@ class ProductsManage extends React.Component {
 			products: [],
 			caregories: [],
 			shopitems: [],
-			title: messages.modeShoplist
+			title: messages.modeShoplist,
+			dummy: true
 		};
 
 		this.selected=[];
@@ -101,6 +102,7 @@ class ProductsManage extends React.Component {
 		dbapi.loadProducts( (data) => {
 			data.sort(productsCompare);
 			// console.log("data=" + JSON.stringify(data));
+			this.selected = [];
 	        for (let i=0; i< data.length; i++){
 				let shopitem = this.findShopitemByProdid (data[i].prodid);
 				if (shopitem != null){
@@ -142,8 +144,10 @@ class ProductsManage extends React.Component {
 
 	updateProduct (prodobj, onSuccess, onError){
 		dbapi.updateProduct(prodobj, (data) => {
-			this.loadProducts();
+			this.loadShopitems();
 			onSuccess();
+			this.setState({dummy: true});
+			// this.refs.productslist.unselectAll(false);
 		},(error) => {
 			this.refs.dialog.showAlert(error, 'medium');
 		    console.log("updateProduct error: " + error);
@@ -203,7 +207,7 @@ class ProductsManage extends React.Component {
 					</Col>
 					<Col md={9} className="prodlist-table">
 						<ProductsList ref="productslist" products={this.state.products} categories={this.state.categories} deleteProduct={this.deleteProduct}
-						                                 updateProduct={this.updateProduct} selected={this.selected} setPageTitle={this.setPageTitle}/>
+						                                 loadShopitems={this.loadShopitems} updateProduct={this.updateProduct} selected={this.selected} setPageTitle={this.setPageTitle}/>
 					</Col>
 				</Row>
 			</Grid>
@@ -383,10 +387,13 @@ class ProductsList extends React.Component {
 				}
 			);
 		}
+		else {
+			this.toggleMode();
+		}
 	}
 
 	toggleMode(){
-
+// console.log("mode=" + this.state.mode);
 		let newmode = (this.state.mode == modeShoplist) ? modeEditProducts : modeShoplist;
 
 		let pageTitle;
@@ -394,6 +401,7 @@ class ProductsList extends React.Component {
 
 
 		if (newmode ==  modeShoplist){
+			this.props.loadShopitems();
 			this.selectRowProp.mode = 'checkbox';
 			this.selectRowProp.bgColor = null;
 			this.selectRowProp.hideSelectColumn = false;
@@ -414,7 +422,9 @@ class ProductsList extends React.Component {
 		}
 
 		this.props.setPageTitle(pageTitle);
-		this.unselectAll();
+		this.unselectAll(false); //Unselect without updating selectedChanged flag, to be able to toggle mode
+		// this.selectedChanged = false;
+		// this.saveSelected();
 		this.setState({mode: newmode});
 
 	}
@@ -474,13 +484,16 @@ class ProductsList extends React.Component {
 
 	}
 
-	unselectAll (){
+	unselectAll (updateSelectedChangedFlag){
 		for (let i=0; i < this.props.products.length; i++){
 			this.props.products[i].quantity = '0';
 		}
 		this.selected = [];
 		this.setState({selected: this.selected});
-		this.selectedChanged = true;
+
+		if (updateSelectedChangedFlag == true || updateSelectedChangedFlag == undefined){
+			this.selectedChanged = true;
+		}
 	}
 
 	getSelectedProduct() {
@@ -673,8 +686,13 @@ console.log("this.selectedChanged = " + this.selectedChanged);
 		// 	// this.setState({selected: this.seleceted});
 		// }
 
+		if (this.state.mode == modeShoplist){
+			this.selectRowProp.selected = this.selected;   //In shoplist mode, all selections visible
+		}
+		else {
+			this.selectRowProp.selected = [this.selectedProdid]; // In edit mode, one selection only
+		}
 
-		this.selectRowProp.selected = this.selected;
 // console.log("rows=" + JSON.stringify(this.props.products));
 // console.log ("selected=" + this.selected);
 // console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
