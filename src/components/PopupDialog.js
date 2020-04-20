@@ -9,18 +9,31 @@ class PopupDialog extends React.Component {
             super(props);
             this.show = this.show.bind(this);
             this.closeModal = this.closeModal.bind(this);
+            this.setOptions = this.setOptions.bind(this);
 
             this.state = {
                 isShown: false,
             }
 
-            this.options = {
+            this.default_options = {
                 title: 'Ειδοποίηση',
                 confirmLabel: 'ΟΚ',
                 cancelLabel: 'Άκυρο',
                 message: 'Παρακαλώ επιβεβαιώστε',
                 callback: null
-            }
+            };
+
+            this.options = this.default_options;
+
+        }
+
+
+        setOptions(userOptions){
+            if (userOptions.title) this.options.title = userOptions.title ;
+            if (userOptions.confirmLabel) this.options.confirmLabel = userOptions.confirmLabel ;
+            if (userOptions.cancelLabel) this.options.cancelLabel = userOptions.cancelLabel;
+            if (userOptions.message) this.options.message = userOptions.message;
+            if (userOptions.callback) this.options.callback = userOptions.callback;
         }
 
         closeModal(callbackState) {
@@ -31,11 +44,10 @@ class PopupDialog extends React.Component {
         }
 
         show(userOptions) {
-            if (userOptions.title) this.options.title = userOptions.title ;
-            if (userOptions.confirmLabel) this.options.confirmLabel = userOptions.confirmLabel ;
-            if (userOptions.cancelLabel) this.options.cancelLabel = useroptions.cancelLabel;
-            if (userOptions.message) this.options.message = userOptions.message;
-            if (userOptions.callback) this.options.callback = userOptions.callback;
+            if (userOptions){
+                this.setOptions(userOptions);
+            }
+
             this.setState({
                 isShown: true
             });

@@ -84,6 +84,12 @@ class ProductsManage extends React.Component {
 	}
 
 	componentDidMount() {
+		this.refs.popupDialog.setOptions({
+			title: messages.warning,
+			confirmLabel: messages.btnOK,
+			cancelLabel: messages.btnCancel
+		});
+
 		this.loadShopitems();
 		this.loadCategories();
 	}
@@ -213,6 +219,7 @@ class ProductsManage extends React.Component {
 				</Row>
 			</Grid>
 			<Dialog ref='dialog'/>
+			<PopupDialog ref='popupDialog'/>
 		</div>);
 
 	}
@@ -302,6 +309,7 @@ class ProductsList extends React.Component {
 		this.intentToToggleMode = this.intentToToggleMode.bind(this);
 
 
+
 		this.selected = [];
 
 
@@ -340,6 +348,12 @@ class ProductsList extends React.Component {
 		// this.node = ReactDOM.findDOMNode(this.refs.expTable).childNodes[0].childNodes[1];
 
 		this._isMounted = true;
+
+		this.refs.popupDialog.setOptions({
+			title: messages.warning,
+			confirmLabel: messages.btnOK,
+			cancelLabel: messages.btnCancel
+		});
 
 		/* To dynamically change table height */
 		let h = getContentHeight();
@@ -663,6 +677,7 @@ class ProductsList extends React.Component {
 		//     });
 
 		this.refs.popupDialog.show ({
+			message: messages.notsavedWarning,
 			callback: ((result) => {
 									if (result == true) {
 				 						ok();
@@ -707,8 +722,11 @@ console.log("this.selectedChanged = " + this.selectedChanged);
 // console.log("rows=" + JSON.stringify(this.props.products));
 // console.log ("selected=" + this.selected);
 // console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
-		return (<div>
 
+
+		return (<div>
+			{/* Prompt is used to prevent changing of page when data are not saved */}
+			{/* See UserConfirmation component declared in index.js */}
 			< Prompt
 				when = {
 				    this.selectedChanged == true
