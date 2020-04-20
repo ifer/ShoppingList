@@ -9,6 +9,7 @@ var messages = {
     signin: "Είσοδος στην εφαρμογή",
     logout: "Αποσύνδεση",
     submit: "Υποβολή",
+    warning: "Προειδοποίηση",
     wrong_credentials: "Λάθος όνομα χρήστη ή κωδικός!",
     listEmpty: "Δεν υπάρχουν δεδομένα",
     action_add: "Προσθήκη",

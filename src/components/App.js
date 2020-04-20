@@ -18,6 +18,7 @@ import Categories from './Categories';
 import Users from './Users';
 import {authentication} from '../js/authentication';
 import {eventManager} from '../js/eventmanager';
+// import UserConfirmation from "../js/userConfirmation";
 
 var loggedIn = false;
 var currentPath = null;

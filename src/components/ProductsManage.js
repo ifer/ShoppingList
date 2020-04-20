@@ -38,6 +38,7 @@ import * as dbapi from "../js/dbapi";
 
 import {SearchTextFormControl} from './FormComponents';
 import ProductForm from "./ProductForm";
+import PopupDialog from "./PopupDialog";
 
 // import Patient from './Patient';
 
@@ -643,23 +644,33 @@ class ProductsList extends React.Component {
 
 	//leave page confirmation and action trigger
 	leaveOperation (ok, cancel){
-		this.refs.dialog.show({
-			  title: messages.cancelTitle,
-		      body:  messages.notsavedWarning,
-		      actions: [
-		        Dialog.CancelAction(() => {
-					if (cancel){
-						cancel();
-					}
-				}),
-		        Dialog.OKAction(() => {
-					if (ok){
-		        		ok();
-					}
-		        })
-		      ],
-			  bsSize: 'medium'
-		    });
+		// this.refs.dialog.show({
+		// 	  title: messages.cancelTitle,
+		//       body:  messages.notsavedWarning,
+		//       actions: [
+		//         Dialog.CancelAction(() => {
+		// 			if (cancel){
+		// 				cancel();
+		// 			}
+		// 		}),
+		//         Dialog.OKAction(() => {
+		// 			if (ok){
+		//         		ok();
+		// 			}
+		//         })
+		//       ],
+		// 	  bsSize: 'medium'
+		//     });
+
+		this.refs.popupDialog.show ({
+			callback: ((result) => {
+									if (result == true) {
+				 						ok();
+									}
+									else {
+										cancel();
+									}})
+		});
 	}
 
 	render() {
@@ -697,6 +708,21 @@ console.log("this.selectedChanged = " + this.selectedChanged);
 // console.log ("selected=" + this.selected);
 // console.log ("this.selectRowProp.selected=" + this.selectRowProp.selected);
 		return (<div>
+
+			< Prompt
+				when = {
+				    this.selectedChanged == true
+				}
+				message = {
+				    JSON.stringify({
+				        "title": messages.warning,
+						"messageText": messages.notsavedWarning,
+				        "confirmText": messages.yes,
+				        "cancelText": messages.no,
+				    })
+				}
+			/>
+
 			<Grid style={{
 					width: '100%',marginRight:"0px",paddingRight:"0px"
 				}}>
@@ -745,6 +771,7 @@ console.log("this.selectedChanged = " + this.selectedChanged);
 			<ProductForm ref='productForm' onModify={this.props.updateProduct} categories={this.props.categories}/>
 
 			<Dialog ref='dialog'/>
+			<PopupDialog ref="popupDialog" />
 
 		</div>);
 	}
