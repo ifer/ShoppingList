@@ -39,6 +39,7 @@ import * as dbapi from "../js/dbapi";
 import {SearchTextFormControl} from './FormComponents';
 import ProductForm from "./ProductForm";
 import PopupDialog from "./PopupDialog";
+import {printShoppingList} from "../print/printtest";
 
 // import Patient from './Patient';
 
@@ -131,6 +132,7 @@ class ProductsManage extends React.Component {
 
 	loadCategories(){
 		dbapi.loadCategories( (data) => {
+			data.sort(categoriesCompare);
 		   this.setState({ categories: data});	;
 		},(err) => {
 		    console.log("loadCategories error: " + err);
@@ -307,7 +309,7 @@ class ProductsList extends React.Component {
 		this.loadSelected = this.loadSelected.bind(this);
 		this.leaveOperation = this.leaveOperation.bind(this);
 		this.intentToToggleMode = this.intentToToggleMode.bind(this);
-
+		this.printList = this.printList.bind(this);
 
 
 		this.selected = [];
@@ -688,6 +690,11 @@ class ProductsList extends React.Component {
 		});
 	}
 
+	printList(){
+		console.log("Printing..");
+		printShoppingList();
+	}
+
 	render() {
 
 
@@ -754,7 +761,7 @@ console.log("this.selectedChanged = " + this.selectedChanged);
 						<ButtonGroup bsClass="shoplist-button-group" hidden={this.state.mode==modeShoplist ? false : true}>
 							<Button bsStyle="primary" onClick={this.saveSelected} className="table-action-button">{messages.btnSave}</Button>
 							<Button bsStyle="danger" onClick={this.unselectAll} className="table-action-button">{messages.btnClear}</Button>
-							<Button bsStyle="info" onClick={this.openDelProductForm} className="table-action-button"> {messages.btnPrint}</Button>
+							<Button bsStyle="info" onClick={this.printList} className="table-action-button"> {messages.btnPrint}</Button>
 						</ButtonGroup>
 					</Col>
 					<Col md={1}>
@@ -821,6 +828,20 @@ function productsCompare(a, b) {
     if (prodA > prodB) {
         comparison = 1;
     } else if (prodA < prodB) {
+        comparison = -1;
+    }
+    return comparison;
+}
+
+function categoriesCompare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const catA = a.descr.toUpperCase();
+    const catB = b.descr.toUpperCase();
+
+    let comparison = 0;
+    if (catA > catB) {
+        comparison = 1;
+    } else if (catA < catB) {
         comparison = -1;
     }
     return comparison;
