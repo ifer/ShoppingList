@@ -39,7 +39,7 @@ import * as dbapi from "../js/dbapi";
 import {SearchTextFormControl} from './FormComponents';
 import ProductForm from "./ProductForm";
 import PopupDialog from "./PopupDialog";
-import {printShoppingList} from "../print/printtest";
+import {printShoppingList} from "../print/printShoplist";
 
 // import Patient from './Patient';
 
@@ -310,6 +310,7 @@ class ProductsList extends React.Component {
 		this.leaveOperation = this.leaveOperation.bind(this);
 		this.intentToToggleMode = this.intentToToggleMode.bind(this);
 		this.printList = this.printList.bind(this);
+		this.intentToPrintList = this.intentToPrintList.bind(this);
 
 
 		this.selected = [];
@@ -596,7 +597,7 @@ class ProductsList extends React.Component {
 		return;
 	}
 
-	saveSelected(){
+	saveSelected(callback){
 		// Delete all before adding
 		dbapi.deleteAllShopitems( (data) => {
 		},(error) => {
@@ -628,6 +629,9 @@ class ProductsList extends React.Component {
 		dbapi.addShopitemList(shopitemList, (data) => {
 			// this.loadProducts();
 			// onSuccess();
+			if(callback){
+				callback();
+			}
 			this.selectedChanged = false;
 		},(error) => {
 			this.refs.dialog.showAlert(error, 'medium');
@@ -660,23 +664,6 @@ class ProductsList extends React.Component {
 
 	//leave page confirmation and action trigger
 	leaveOperation (ok, cancel){
-		// this.refs.dialog.show({
-		// 	  title: messages.cancelTitle,
-		//       body:  messages.notsavedWarning,
-		//       actions: [
-		//         Dialog.CancelAction(() => {
-		// 			if (cancel){
-		// 				cancel();
-		// 			}
-		// 		}),
-		//         Dialog.OKAction(() => {
-		// 			if (ok){
-		//         		ok();
-		// 			}
-		//         })
-		//       ],
-		// 	  bsSize: 'medium'
-		//     });
 
 		this.refs.popupDialog.show ({
 			message: messages.notsavedWarning,
@@ -690,8 +677,18 @@ class ProductsList extends React.Component {
 		});
 	}
 
+	intentToPrintList(){
+		if (this.selectedChanged == true ){ //needs save first
+			this.saveSelected(this.printList);
+		}
+		else {
+			this.printList();
+		}
+
+	}
+
 	printList(){
-		console.log("Printing..");
+		// console.log("Printing..");
 		dbapi.loadShopitemPrintList( (data) => {
 		   printShoppingList(data);
 		},(err) => {
@@ -713,17 +710,6 @@ class ProductsList extends React.Component {
 			noDataText: messages.listEmpty,
 			// onRowDoubleClick: this.onRowDoubleClick
 		};
-console.log("this.selectedChanged = " + this.selectedChanged);
-		// if ( this.props.products && this.props.products.length > 0){
-		// 	console.log("props.products=" + JSON.stringify( this.props.products));
-		// 	this.selected = [];
-		// 	for (let i=0; i< this.props.products.length; i++){
-		// 		if (this.props.products[i].selected == true){
-		// 			this.selected.push(this.props.products[i].prodid);
-		// 		}
-		// 	}
-		// 	// this.setState({selected: this.seleceted});
-		// }
 
 		if (this.state.mode == modeShoplist){
 			this.selectRowProp.selected = this.selected;   //In shoplist mode, all selections visible
@@ -767,7 +753,7 @@ console.log("this.selectedChanged = " + this.selectedChanged);
 						<ButtonGroup bsClass="shoplist-button-group" hidden={this.state.mode==modeShoplist ? false : true}>
 							<Button bsStyle="primary" onClick={this.saveSelected} className="table-action-button">{messages.btnSave}</Button>
 							<Button bsStyle="danger" onClick={this.unselectAll} className="table-action-button">{messages.btnClear}</Button>
-							<Button bsStyle="info" onClick={this.printList} className="table-action-button"> {messages.btnPrint}</Button>
+							<Button bsStyle="info" onClick={this.intentToPrintList} className="table-action-button"> {messages.btnPrint}</Button>
 						</ButtonGroup>
 					</Col>
 					<Col md={1}>

@@ -58,6 +58,8 @@ var messages = {
     deleteCategoryConfirmBody1: "Πρόκειται να διαγραφεί η κατηγορία: ",
     deleteCategoryConfirmBody2: "Παρακαλώ επιβεβαιώστε.",
 
+    printShoplistTitle: "Λίστα Αγορών",
+
     dateformat_gr: "ΗΗ/ΜΜ/ΕΕΕΕ",
     usersTitle: "Χρήστες εφαρμογής",
     userdata: "Στοιχεία χρήστη",
