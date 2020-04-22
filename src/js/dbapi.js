@@ -65,6 +65,25 @@ function loadShopitems(callback, errorcallback) {
     });
 }
 
+function loadShopitemPrintList (callback, errorcallback) {
+
+    axios({
+        method: 'get',
+        url: serverinfo.url_shopitemprintlist(),
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => response.data).then(json => {
+        callback(json);
+
+// console.log("loadCategories: result " + JSON.stringify(json))	;
+    }).catch(error => {
+        errorcallback(error.message);
+        // console.log("loadShopitems error: " + error.message);
+    });
+}
+
 function updateProduct (prodobj, callback, errorcallback){
 
         axios({
@@ -210,4 +229,4 @@ function deleteAllShopitems(callback, errorcallback) {
 
 
 
-export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems, loadShopitems};
+export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems, loadShopitems, loadShopitemPrintList};

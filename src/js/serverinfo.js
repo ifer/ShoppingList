@@ -18,6 +18,7 @@ var serverinfo = {
 	url_delproduct() {return this.base_url + "/api/delproduct"},
 	url_shopitem() {return this.base_url + "/api/shopitem"},
 	url_shopitemlist() {return this.base_url + "/api/shopitemlist"},
+	url_shopitemprintlist() {return this.base_url + "/api/shopitemprintlist"},
 	url_updateshopitem() {return this.base_url + "/api/updateshopitem"},
 	url_delshopitem() {return this.base_url + "/api/delshopitem"},
 	url_addshopitemlist() {return this.base_url + "/api/addshopitemlist"},

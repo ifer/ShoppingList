@@ -17,27 +17,25 @@ const fonts = {
 
 
 
-function printShoppingList (){
+function printShoppingList (data){
     pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
     var docDefinition = geDocDefinition();
-    docDefinition.content.push (printData());
-    // createPdf (docDefinition,  "shoplist.pdf");
 
+    let processedData = processData (data);
+    console.log(JSON.stringify(processedData));
+
+    docDefinition.content.push (printData(processedData));
+    //
     pdfMake.createPdf(docDefinition).open();
 }
 
-function printData (){
+function printData (content){
 	let c =	[{
 	  			style: 'tableStandard',
 	  			table: {
 	  				widths: [350, 100],
-	  				body: [
-	  					[ "Μακαρόνια Μίσκο", {text: "2", style: 'fontbold'}],
-	  					[ "Γάλα Όλυμπος", {text: "1", style: 'fontbold'}],
-	  					[ "Γιαούρτια Όλυμπος 2% χωρίς λακτόζη", {text: "9", style: 'fontbold'}],
-	  					[ "AJAX για τζάμια", {text: "1", style: 'fontbold'}],
-	  				]
+	  				body: content,
 	  			},
 	  			layout: 'noBorders'
 	  		}];
@@ -47,6 +45,27 @@ function printData (){
 
 	return (c);
 
+}
+
+function processData (data){
+    let c = [];
+    let n = data.length;
+
+    let prevCategory = ""
+
+    for (let i=0; i<n; i++){
+        let e = [];
+        if (data[i].categoryName != prevCategory){
+            e = [{text: data[i].categoryName, style: 'fontbold'}, ""];
+            c.push(e);
+            e = [];
+        }
+        e = [data[i].productName, data[i].quantity];
+        c.push(e);
+        prevCategory = data[i].categoryName;
+        // console.log(JSON.stringify(data[i]));
+    }
+    return (c);
 }
 
 function geDocDefinition (){

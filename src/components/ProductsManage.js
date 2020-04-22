@@ -692,7 +692,13 @@ class ProductsList extends React.Component {
 
 	printList(){
 		console.log("Printing..");
-		printShoppingList();
+		dbapi.loadShopitemPrintList( (data) => {
+		   printShoppingList(data);
+		},(err) => {
+		    console.log("loadShopitemPrintList error: " + err);
+		});
+
+
 	}
 
 	render() {
