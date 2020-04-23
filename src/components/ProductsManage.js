@@ -268,7 +268,6 @@ class SelectCategory extends React.Component {
 			background: "Lavender"
 		}
 
-		console.log("render");
 
 		return (
 			<div>
@@ -340,6 +339,8 @@ class ProductsList extends React.Component {
 		this.selectedProdid = null;
 
 		this.selectedChanged = false;
+
+		this.filterCategory = null;
 
 		this._isMounted = false;
 
@@ -532,10 +533,12 @@ class ProductsList extends React.Component {
 		// console.log("applyFilter=" + filter);
 
 		if (category.catid > 0){
+			this.filterCategory = category;
 			this.refs.catid.applyFilter({number: category.catid, comparator: '='});
 			this.setState({title: category.descr});
 		}
 		else {
+			this.filterCategory = null;
 			this.refs.catid.cleanFiltered();
 			this.setState({title: category.descr});
 			// this.setState({filtered: false});
@@ -546,7 +549,10 @@ class ProductsList extends React.Component {
 
 		// console.log("Opening product ADD ");
 
-		var newProduct = Object.assign({}, ProductObject);
+		let newProduct = Object.assign({}, ProductObject);
+		if (this.filterCategory != null){
+			newProduct.catid = this.filterCategory.catid;
+		}
 		this.refs.productForm.open(newProduct, "add");
 
 	}
