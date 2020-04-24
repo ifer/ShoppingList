@@ -64,7 +64,7 @@ export default class App extends React.Component {
     	if (this._isMounted == false)
     		return null;
 
-    	console.log("App render: loggedIn = " + loggedIn);
+    	// console.log("App render: loggedIn = " + loggedIn);
     	return (<div >
     		<HeaderNavigation username={authentication.getCurrentUser()}/>
     		<div id="appcontent" className="app-content">

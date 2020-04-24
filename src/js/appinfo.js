@@ -1,5 +1,5 @@
 var appinfo = {
- version: "0.0.1",
+ version: "1.0.0",
  signature: "ifer 2020"
 };
 

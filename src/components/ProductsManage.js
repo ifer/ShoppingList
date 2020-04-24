@@ -39,7 +39,9 @@ import * as dbapi from "../js/dbapi";
 import {SearchTextFormControl} from './FormComponents';
 import ProductForm from "./ProductForm";
 import PopupDialog from "./PopupDialog";
+
 import {printShoppingList} from "../print/printShoplist";
+import shopimg from '../styles/img/shopping32.png';
 
 // import Patient from './Patient';
 
@@ -766,7 +768,7 @@ class ProductsList extends React.Component {
 					</Col>
 					<Col md={3} style={{flexDirection: "column", display: "flex", alignItems: "flexCenter"}}>
 						<span >
-							<Image src="../styles/img/shopping32.png"  />
+							<Image src={shopimg} />
 							<span style={{marginLeft:"5px", color:"blue"}}>
 								{this.selected.length}
 							</span>
