@@ -637,7 +637,7 @@ class ProductsList extends React.Component {
 		dbapi.addShopitemList(shopitemList, (data) => {
 			// this.loadProducts();
 			// onSuccess();
-			if(callback){
+			if(typeof callback === "function"){
 				callback();
 			}
 			this.selectedChanged = false;
