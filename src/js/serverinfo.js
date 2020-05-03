@@ -22,6 +22,7 @@ var serverinfo = {
 	url_updateshopitem() {return this.base_url + "/api/updateshopitem"},
 	url_delshopitem() {return this.base_url + "/api/delshopitem"},
 	url_addshopitemlist() {return this.base_url + "/api/addshopitemlist"},
+	url_replaceshopitemlist() {return this.base_url + "/api/replaceshopitemlist"},
 	url_delshopitemlist() {return this.base_url + "/api/delshopitemlist"},
 	url_delallshopitems() {return this.base_url + "/api/delallshopitems"},
 

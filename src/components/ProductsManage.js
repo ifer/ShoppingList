@@ -606,15 +606,15 @@ class ProductsList extends React.Component {
 	}
 
 	saveSelected(callback){
-		// Delete all before adding
-		dbapi.deleteAllShopitems( (data) => {
-		},(error) => {
-			this.refs.dialog.showAlert(error, 'medium');
-			console.log("addShopitemList error: " + error);
-		});
-
+		// Delete all if none is selected
 		if (this.selected.length == 0){
-			this.selectedChanged = false;
+			dbapi.deleteAllShopitems( (data) => {
+				this.selectedChanged = false;
+			},
+			(error) => {
+				this.refs.dialog.showAlert(error, 'medium');
+				console.log("deleteShopitemList error: " + error);
+			});
 			return;
 		}
 
@@ -633,8 +633,8 @@ class ProductsList extends React.Component {
 			shopitemList.push(shopitem);
 		}
 
-		// this.props.addShopitemList(shopitemList);
-		dbapi.addShopitemList(shopitemList, (data) => {
+		//delete all shopitems and add new list
+		dbapi.replaceShopitemList(shopitemList, (data) => {
 			// this.loadProducts();
 			// onSuccess();
 			if(typeof callback === "function"){
@@ -643,7 +643,7 @@ class ProductsList extends React.Component {
 			this.selectedChanged = false;
 		},(error) => {
 			this.refs.dialog.showAlert(error, 'medium');
-			console.log("addShopitemList error: " + error);
+			console.log("replaceShopitemList error: " + error);
 		});
 
 	}

@@ -160,6 +160,40 @@ function deleteProduct(prodobj, callback, errorcallback) {
     });
 }
 
+function replaceShopitemList(slist, callback, errorcallback) {
+    axios({
+        method: 'post',
+        url: serverinfo.url_replaceshopitemlist(),
+        data: slist,
+        auth: {
+            username: authentication.username,
+            password: authentication.password
+        }
+    }).then(response => { //Detect  http errors
+        if (response.status != 200) {
+            // this.refs.dialog.showAlert(response.statusText, 'medium');
+            errorcallback(response.statusText);
+        }
+        //        	console.log(response);
+        return response;
+    }).then(response => response.data).then(responseMessage => { //Detect app or db errors
+        //            console.log (responseMessage);
+        if (responseMessage.status == 0) { //SUCCESS
+            callback(responseMessage);
+            // this.loadProducts();
+        }
+        else {
+            errorcallback(response.statusText);
+            // this.refs.dialog.showAlert(responseMessage.message, 'medium');
+                       	// onError();
+        }
+    }).catch(error => {
+        errorcallback(error);
+        // console.log("deleteProduct error: " + error.message);
+        // this.refs.dialog.showAlert(error.message, 'medium');
+    });
+}
+
 function addShopitemList(slist, callback, errorcallback) {
     axios({
         method: 'post',
@@ -229,4 +263,4 @@ function deleteAllShopitems(callback, errorcallback) {
 
 
 
-export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems, loadShopitems, loadShopitemPrintList};
+export {loadProducts, loadCategories, updateProduct, deleteProduct, addShopitemList, deleteAllShopitems, loadShopitems, loadShopitemPrintList, replaceShopitemList};
