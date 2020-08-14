@@ -20,11 +20,13 @@
     "dependencies": {
         "axios": "^0.19.2",
         "base-64": "^0.1.0",
+        "elliptic": "^6.5.3",
         "evergreen-ui": "^4.26.0",
         "extract-text-webpack-plugin": "4.0.0-alpha.0",
         "fbemitter": "^2.1.1",
         "file-loader": "^6.0.0",
         "js-cookie": "^2.2.1",
+        "lodash": "^4.17.19",
         "moment": "^2.24.0",
         "pdfmake": "^0.1.65",
         "react": "^16.13.1",
@@ -37,7 +39,8 @@
         "react-router-dom": "^5.1.2",
         "serialize-javascript": "^3.1.0",
         "simple-encryptor": "^3.0.0",
-        "url-loader": "^4.1.0"
+        "url-loader": "^4.1.0",
+        "websocket-extensions": "^0.1.4"
     },
     "scripts": {
         "build": "webpack -p --env=production",
