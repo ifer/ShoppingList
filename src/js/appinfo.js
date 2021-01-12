@@ -1,6 +1,6 @@
 var appinfo = {
- version: "1.0.3",
- signature: "ifer 2020"
+    version: '1.0.4',
+    signature: 'ifer 2020',
 };
 
-export {appinfo};
+export { appinfo };

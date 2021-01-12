@@ -18,7 +18,7 @@
         "webpack-dev-server": "^3.10.3"
     },
     "dependencies": {
-        "axios": "^0.19.2",
+        "axios": "0.21.1",
         "base-64": "^0.1.0",
         "elliptic": "^6.5.3",
         "evergreen-ui": "^4.26.0",
