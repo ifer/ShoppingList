@@ -20,7 +20,7 @@
     "dependencies": {
         "axios": "0.21.1",
         "base-64": "^0.1.0",
-        "elliptic": "^6.5.3",
+        "elliptic": "^6.5.4",
         "evergreen-ui": "^4.26.0",
         "extract-text-webpack-plugin": "4.0.0-alpha.0",
         "fbemitter": "^2.1.1",
