@@ -48,7 +48,7 @@
         "tar": "4.4.15",
         "ua-parser-js": "0.7.28",
         "url-loader": "^4.1.0",
-        "url-parse": "1.5.1",
+        "url-parse": "1.5.2",
         "websocket-extensions": "^0.1.4"
     },
     "scripts": {
