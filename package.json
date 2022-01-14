@@ -33,7 +33,7 @@
         "js-cookie": "^2.2.1",
         "lodash": "4.17.21",
         "moment": "^2.24.0",
-        "node-forge": "^0.10.0",
+        "node-forge": "^1.0.0",
         "path-parse": "1.0.7",
         "pdfmake": "^0.1.65",
         "postcss": "7.0.36",
