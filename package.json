@@ -10,7 +10,7 @@
         "babel-preset-es2015": "^6.24.1",
         "babel-preset-react": "^6.24.1",
         "css-loader": "^3.5.1",
-        "node-sass": "^4.13.1",
+        "node-sass": "7.0.0",
         "sass-loader": "^8.0.2",
         "style-loader": "^1.1.3",
         "webpack": "^4.42.1",
@@ -18,6 +18,7 @@
         "webpack-dev-server": "^3.10.3"
     },
     "dependencies": {
+        "ajv": "6.12.6",
         "axios": "0.21.1",
         "base-64": "^0.1.0",
         "dns-packet": "^1.3.4",
@@ -26,6 +27,7 @@
         "extract-text-webpack-plugin": "4.0.0-alpha.0",
         "fbemitter": "^2.1.1",
         "file-loader": "^6.0.0",
+        "follow-redirects": "1.14.8",
         "glob-parent": "^5.1.2",
         "hosted-git-info": "2.8.9",
         "http-proxy": "1.18.1",
@@ -33,7 +35,7 @@
         "js-cookie": "^2.2.1",
         "lodash": "4.17.21",
         "moment": "^2.24.0",
-        "node-forge": "^0.10.0",
+        "node-forge": "1.0.0",
         "path-parse": "1.0.7",
         "pdfmake": "^0.1.65",
         "postcss": "7.0.36",
