@@ -38,7 +38,7 @@
         "node-forge": "1.0.0",
         "path-parse": "1.0.7",
         "pdfmake": "^0.1.65",
-        "postcss": "7.0.36",
+        "postcss": "8.2.13",
         "react": "^16.13.1",
         "react-bootstrap": "0.31.2",
         "react-bootstrap-dialog": "^0.13.0",
