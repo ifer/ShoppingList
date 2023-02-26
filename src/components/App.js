@@ -78,7 +78,7 @@ export default class App extends React.Component {
         return (
             <div>
                 <HeaderNavigation username={this.state.userobj.name} />
-                <div id="appcontent" className="app-content">
+                {/* <div id="appcontent" className="app-content">
                     <Router history={history}>
                         <Switch>
                             <RouteGuard exact path="/" component={ProductsManage} />
@@ -86,19 +86,19 @@ export default class App extends React.Component {
                             <RouteGuard exact path="/categories" component={Categories} />
                             <RouteGuard exact path="/users" component={Users} />
                             <Route path="/login" component={LoginForm} />
-                            <Redirect to="/login" />
+                            <Redirect to="/" />
                         </Switch>
                     </Router>
-                </div>
-                {/* <div id="appcontent" className="app-content">
+                </div> */}
+                <div id="appcontent" className="app-content">
                     <Switch>
-                        <PrivateRoute exact={true} path="/" component={ProductsManage} />
+                        <RouteGuard exact={true} path="/" component={ProductsManage} />
                         <Route path="/products" component={ProductsManage} />
                         <Route path="/categories" component={Categories} />
                         <Route path="/login" component={LoginForm} />
-                        <PrivateRoute path="/users" component={Users} />
+                        <RouteGuard path="/users" component={Users} />
                     </Switch>
-                </div> */}
+                </div>
                 {/* <Footer /> */}
             </div>
         );
