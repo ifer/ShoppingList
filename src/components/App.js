@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 
 import { Switch, Route, Router, Link, Redirect } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
+import { isExpired, decodeToken } from 'react-jwt';
 
 import '../styles/app.css';
 
@@ -43,9 +44,9 @@ export default class App extends React.Component {
         // this._isMounted = true;
         this.setState({ isMounted: true });
         this.subscription = eventManager.getEmitter().addListener(eventManager.authChannel, this.onAuthChange);
-        console.log('App componentwillMount: checking cookie...');
+        console.log('App componentwillMount: checking token...');
         const token = localStorage.getItem('token');
-        if (token) {
+        if (token && !isExpired(token)) {
             authentication.setAuthToken(token);
             const uo = await authentication.loadCurrentUserObject();
             this.setState({ userobj: uo });
@@ -58,11 +59,6 @@ export default class App extends React.Component {
 
             // this.onAuthChange(false, 200, null);
         }
-    }
-
-    componentWillUnmount() {
-        // this._isMounted = false;
-        // this.setState({ isMounted: false });
     }
 
     onAuthChange(result, username) {
@@ -78,8 +74,7 @@ export default class App extends React.Component {
     render() {
         if (this.state.userobj == null) return null;
 
-        console.log('App render');
-        console.log('currebt user = ' + JSON.stringify(this.state.userobj));
+        // console.log('current user = ' + JSON.stringify(this.state.userobj));
         return (
             <div>
                 <HeaderNavigation username={this.state.userobj.name} />
@@ -91,7 +86,7 @@ export default class App extends React.Component {
                             <RouteGuard exact path="/categories" component={Categories} />
                             <RouteGuard exact path="/users" component={Users} />
                             <Route path="/login" component={LoginForm} />
-                            <Redirect to="/" />
+                            <Redirect to="/login" />
                         </Switch>
                     </Router>
                 </div>
@@ -110,33 +105,14 @@ export default class App extends React.Component {
     }
 }
 
-const PrivateRoute = ({ component: Component, ...rest }) => (
-    <Route
-        {...rest}
-        render={(props) =>
-            loggedIn ? (
-                <Component {...props} />
-            ) : (
-                <Redirect
-                    to={{
-                        pathname: '/login',
-                        state: { from: props.location },
-                    }}
-                />
-            )
-        }
-    />
-);
-
 const RouteGuard = ({ component: Component, ...rest }) => {
     function hasJWT() {
         let flag = false;
 
         //check user has JWT token
-        console.log('RouteGuard');
+        // console.log('RouteGuard');
         const token = localStorage.getItem('token');
-        if (token) {
-            // console.log(`token found: ${token}`);
+        if (token && !isExpired(token)) {
             flag = true;
             authentication.setAuthToken(token);
             authentication.loadCurrentUserObject();
