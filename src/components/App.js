@@ -28,28 +28,41 @@ const history = createBrowserHistory();
 export default class App extends React.Component {
     constructor(props) {
         super(props);
-        this._isMounted = false;
+        // this._isMounted = false;
         this.state = {
             loggedIn: false,
             username: null,
+            userobj: null,
+            isMounted: false,
         };
+
         this.onAuthChange = this.onAuthChange.bind(this);
     }
 
-    componentDidMount() {
-        this._isMounted = true;
+    async componentDidMount() {
+        // this._isMounted = true;
+        this.setState({ isMounted: true });
         this.subscription = eventManager.getEmitter().addListener(eventManager.authChannel, this.onAuthChange);
-        // console.log("App componentDidMount: checking cookie...");
-        // authentication.checkLoginByCookie(this.onAuthChange);
+        console.log('App componentwillMount: checking cookie...');
         const token = localStorage.getItem('token');
         if (token) {
             authentication.setAuthToken(token);
-            authentication.loadCurrentUserObject();
+            const uo = await authentication.loadCurrentUserObject();
+            this.setState({ userobj: uo });
+            eventManager.getEmitter().emit(eventManager.authChannel, true, this.state.userobj.name);
+
+            // this.onAuthChange(true, 200, this.state.userobj.name);
+        } else {
+            this.setState({ userobj: {} });
+            eventManager.getEmitter().emit(eventManager.authChannel, false, '');
+
+            // this.onAuthChange(false, 200, null);
         }
     }
 
     componentWillUnmount() {
-        this._isMounted = false;
+        // this._isMounted = false;
+        // this.setState({ isMounted: false });
     }
 
     onAuthChange(result, username) {
@@ -63,13 +76,13 @@ export default class App extends React.Component {
     }
 
     render() {
-        // if (this._isMounted == false) return null;
+        if (this.state.userobj == null) return null;
 
-        // console.log("App render: loggedIn = " + loggedIn);
-        console.log('currebt user = ' + authentication.getCurrentUser());
+        console.log('App render');
+        console.log('currebt user = ' + JSON.stringify(this.state.userobj));
         return (
             <div>
-                <HeaderNavigation username={authentication.getCurrentUser()} />
+                <HeaderNavigation username={this.state.userobj.name} />
                 <div id="appcontent" className="app-content">
                     <Router history={history}>
                         <Switch>
@@ -120,8 +133,10 @@ const RouteGuard = ({ component: Component, ...rest }) => {
         let flag = false;
 
         //check user has JWT token
+        console.log('RouteGuard');
         const token = localStorage.getItem('token');
         if (token) {
+            // console.log(`token found: ${token}`);
             flag = true;
             authentication.setAuthToken(token);
             authentication.loadCurrentUserObject();

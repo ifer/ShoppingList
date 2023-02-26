@@ -59,21 +59,36 @@ var authentication = {
         callback(true, 200, null);
     },
 
-    loadCurrentUserObject() {
-        axios({
-            method: 'get',
-            url: serverinfo.url_curruserdata(),
-        })
-            .then((response) => response.data)
-            .then((json) => {
-                this.userobj = json;
-                this.username = json.name;
-                this.isAuthenticated = json.authenticated;
-                console.log('Userobj=' + JSON.stringify(this.userobj));
-            })
-            .catch((error) => {
-                console.log('loadCurrentUserData error: ' + error.message);
-            });
+    // loadCurrentUserObject() {
+    //     axios({
+    //         method: 'get',
+    //         url: serverinfo.url_curruserdata(),
+    //     })
+    //         .then((response) => response.data)
+    //         .then((json) => {
+    //             this.userobj = json;
+    //             this.username = json.name;
+    //             this.isAuthenticated = json.authenticated;
+    //             console.log('Userobj=' + JSON.stringify(this.userobj));
+    //             return this.userobj;
+    //         })
+    //         .catch((error) => {
+    //             console.log('loadCurrentUserData error: ' + error.message);
+    //         });
+    // },
+
+    async loadCurrentUserObject() {
+        // let userobj;
+        try {
+            const response = await axios({ method: 'get', url: serverinfo.url_curruserdata() });
+            this.userobj = response.data;
+            this.username = this.userobj.name;
+            this.isAuthenticated = this.userobj.authenticated;
+            console.log('Userobj=' + JSON.stringify(this.userobj));
+            return this.userobj;
+        } catch (error) {
+            console.log('loadCurrentUserData error: ' + error.message);
+        }
     },
 
     getCurrentUser() {
