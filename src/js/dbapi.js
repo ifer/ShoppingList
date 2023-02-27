@@ -9,32 +9,32 @@ async function loadProducts(callback, errorcallback) {
         const response = await axios({ method: 'get', url: serverinfo.url_productlist() });
         const data = response.data;
         callback(data);
-        console.log('loadProducts: result ' + JSON.stringify(data));
+        // console.log('loadProducts: result ' + JSON.stringify(data));
     } catch (error) {
         errorcallback(error.message);
         console.log('loadProducts error: ' + error.message);
     }
 }
 
-function loadProducts0(callback, errorcallback) {
-    // this.searchform = sf;
-    // this.saveSearchForm (sf);
-    // url: serverinfo.url_productlist(),
-    console.log('Loading products...');
-    axios({
-        method: 'get',
-        url: serverinfo.url_productlist(),
-    })
-        .then((response) => response.data)
-        .then((json) => {
-            callback(json);
-            // console.log('loadProducts: result ' + JSON.stringify(this.state.products));
-        })
-        .catch((error) => {
-            errorcallback(error.message);
-            console.log('loadProducts error: ' + error.message);
-        });
-}
+// function loadProducts0(callback, errorcallback) {
+//     // this.searchform = sf;
+//     // this.saveSearchForm (sf);
+//     // url: serverinfo.url_productlist(),
+//     console.log('Loading products...');
+//     axios({
+//         method: 'get',
+//         url: serverinfo.url_productlist(),
+//     })
+//         .then((response) => response.data)
+//         .then((json) => {
+//             callback(json);
+//             // console.log('loadProducts: result ' + JSON.stringify(this.state.products));
+//         })
+//         .catch((error) => {
+//             errorcallback(error.message);
+//             console.log('loadProducts error: ' + error.message);
+//         });
+// }
 
 function loadCategories(callback, errorcallback) {
     axios({
@@ -77,9 +77,8 @@ function loadShopitemPrintList(callback, errorcallback) {
     })
         .then((response) => response.data)
         .then((json) => {
+            // console.log('loadShopitemPrintList: result ' + JSON.stringify(json));
             callback(json);
-
-            // console.log("loadCategories: result " + JSON.stringify(json))	;
         })
         .catch((error) => {
             errorcallback(error.message);

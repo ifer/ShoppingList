@@ -127,6 +127,7 @@ export default class Users extends React.Component {
         var success = true;
 
         let target_url;
+
         if (isUserAdmin(this.state.curruser)) target_url = serverinfo.url_upduser();
         else target_url = serverinfo.url_updpasswd(); //Normal users can only change their own password
 
@@ -223,6 +224,7 @@ export default class Users extends React.Component {
     }
 
     openAddUserForm() {
+        console.log(`curuser: ${JSON.stringify(this.state.curruser)}`);
         if (!isUserAdmin(this.state.curruser)) {
             this.refs.dialog.showAlert(messages.userActionNotPermitted, 'medium');
             return;

@@ -388,11 +388,16 @@ class ProductsList extends React.Component {
 
     intentToToggleMode() {
         if (this.selectedChanged == true) {
-            this.leaveOperation(() => {
-                this.selectedChanged = false;
-                this.toggleMode();
-                // this.props.history.goBack(); //Return
-            });
+            this.leaveOperation(
+                () => {
+                    this.selectedChanged = false;
+                    this.toggleMode();
+                    // this.props.history.goBack(); //Return
+                },
+                () => {
+                    return;
+                }
+            );
         } else {
             this.toggleMode();
         }
@@ -608,10 +613,10 @@ class ProductsList extends React.Component {
             (data) => {
                 // this.loadProducts();
                 // onSuccess();
+                this.selectedChanged = false;
                 if (typeof callback === 'function') {
                     callback();
                 }
-                this.selectedChanged = false;
             },
             (error) => {
                 this.refs.dialog.showAlert(error, 'medium');
