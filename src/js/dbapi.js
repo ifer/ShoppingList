@@ -161,40 +161,60 @@ function deleteProduct(prodobj, callback, errorcallback) {
         });
 }
 
-function replaceShopitemList(slist, callback, errorcallback) {
-    axios({
-        method: 'post',
-        url: serverinfo.url_replaceshopitemlist(),
-        data: slist,
-    })
-        .then((response) => {
-            //Detect  http errors
-            if (response.status != 200) {
-                // this.refs.dialog.showAlert(response.statusText, 'medium');
-                errorcallback(response.statusText);
-            }
-            //        	console.log(response);
-            return response;
-        })
-        .then((response) => response.data)
-        .then((responseMessage) => {
-            //Detect app or db errors
-            //            console.log (responseMessage);
+async function replaceShopitemList(slist) {
+    const promise = new Promise(async (resolve, reject) => {
+        let response;
+        try {
+            response = await axios({ method: 'post', url: serverinfo.url_replaceshopitemlist(), data: slist });
+        } catch (error) {
+            reject(response.statusText);
+        }
+        if (response.status == 200) {
+            const responseMessage = response.data;
             if (responseMessage.status == 0) {
-                //SUCCESS
-                callback(responseMessage);
-                // this.loadProducts();
+                resolve(responseMessage.data);
             } else {
-                errorcallback(response.statusText);
-                // this.refs.dialog.showAlert(responseMessage.message, 'medium');
-                // onError();
+                reject(responseMessage.message);
             }
-        })
-        .catch((error) => {
-            errorcallback(error);
-            // console.log("deleteProduct error: " + error.message);
-            // this.refs.dialog.showAlert(error.message, 'medium');
-        });
+        } else {
+            reject(responseMessage.message);
+        }
+    });
+
+    return promise;
+    // axios({
+    //     method: 'post',
+    //     url: serverinfo.url_replaceshopitemlist(),
+    //     data: slist,
+    // })
+    //     .then((response) => {
+    //         //Detect  http errors
+    //         if (response.status != 200) {
+    //             // this.refs.dialog.showAlert(response.statusText, 'medium');
+    //             errorcallback(response.statusText);
+    //         }
+    //         //        	console.log(response);
+    //         return response;
+    //     })
+    //     .then((response) => response.data)
+    //     .then((responseMessage) => {
+    //         //Detect app or db errors
+    //         //            console.log (responseMessage);
+    //         if (responseMessage.status == 0) {
+    //             //SUCCESS
+    //             callback(responseMessage);
+    //             // this.loadProducts();
+    //         } else {
+    //             errorcallback(response.statusText);
+    //             // this.refs.dialog.showAlert(responseMessage.message, 'medium');
+    //             // onError();
+    //         }
+    //     })
+    //     .catch((error) => {
+    //         errorcallback(error);
+    //         // console.log("deleteProduct error: " + error.message);
+    //         // this.refs.dialog.showAlert(error.message, 'medium');
+    //     });
 }
 
 function addShopitemList(slist, callback, errorcallback) {

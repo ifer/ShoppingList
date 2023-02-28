@@ -321,6 +321,7 @@ class ProductsList extends React.Component {
             title: messages.allCategories,
             mode: modeShoplist,
             selected: this.selected,
+            selectedChanged: false,
             dummy: true,
         };
 
@@ -334,7 +335,7 @@ class ProductsList extends React.Component {
 
         this.selectedProdid = null;
 
-        this.selectedChanged = false;
+        // this.selectedChanged = false;
 
         this.filterCategory = null;
 
@@ -387,10 +388,11 @@ class ProductsList extends React.Component {
     }
 
     intentToToggleMode() {
-        if (this.selectedChanged == true) {
+        if (this.state.selectedChanged == true) {
             this.leaveOperation(
                 () => {
-                    this.selectedChanged = false;
+                    this.setState({ selectedChanged: false });
+                    // this.selectedChanged = false;
                     this.toggleMode();
                     // this.props.history.goBack(); //Return
                 },
@@ -452,8 +454,8 @@ class ProductsList extends React.Component {
                     this.selected.splice(index, 1);
                 }
             }
-            this.setState({ selected: this.selected });
-            this.selectedChanged = true;
+            this.setState({ selected: this.selected, selectedChanged: true });
+            // this.selectedChanged = true;
         } else {
             if (isSelected) this.selectedProdid = row.prodid;
             else this.selectedProdid = null;
@@ -481,8 +483,8 @@ class ProductsList extends React.Component {
         // else {
         //
         // }
-        this.setState({ selected: this.selected });
-        this.selectedChanged = true;
+        this.setState({ selected: this.selected, selectedChanged: true });
+        // this.selectedChanged = true;
     }
 
     unselectAll(updateSelectedChangedFlag) {
@@ -493,7 +495,8 @@ class ProductsList extends React.Component {
         this.setState({ selected: this.selected });
 
         if (updateSelectedChangedFlag == true || updateSelectedChangedFlag == undefined) {
-            this.selectedChanged = true;
+            this.setState({ selectedChanged: true });
+            // this.selectedChanged = true;
         }
     }
 
@@ -577,18 +580,17 @@ class ProductsList extends React.Component {
         return;
     }
 
-    saveSelected(callback) {
+    async saveSelected(callback) {
         // Delete all if none is selected
         if (this.selected.length == 0) {
-            dbapi.deleteAllShopitems(
-                (data) => {
-                    this.selectedChanged = false;
-                },
-                (error) => {
-                    this.refs.dialog.showAlert(error, 'medium');
-                    console.log('deleteShopitemList error: ' + error);
-                }
-            );
+            const respmsg = dbapi.deleteAllShopitems();
+            if (respmsg.status == 0) {
+                // this.selectedChanged = false;
+                this.setState({ selectedChanged: false });
+            } else {
+                this.refs.dialog.showAlert(respmsg.message, 'medium');
+                console.log('deleteShopitemList error: ' + respmsg.message);
+            }
             return;
         }
 
@@ -608,21 +610,27 @@ class ProductsList extends React.Component {
         }
 
         //delete all shopitems and add new list
-        dbapi.replaceShopitemList(
-            shopitemList,
-            (data) => {
-                // this.loadProducts();
-                // onSuccess();
-                this.selectedChanged = false;
-                if (typeof callback === 'function') {
-                    callback();
-                }
-            },
-            (error) => {
-                this.refs.dialog.showAlert(error, 'medium');
-                console.log('replaceShopitemList error: ' + error);
+        let resp;
+        try {
+            resp = await dbapi.replaceShopitemList(shopitemList);
+            this.setState({ selectedChanged: false });
+            // this.selectedChanged = false;
+            if (typeof callback === 'function') {
+                callback();
             }
-        );
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('deleteShopitemList error: ' + error);
+        }
+        // if (respmsg.status == 0) {
+        //     this.selectedChanged = false;
+        //     if (typeof callback === 'function') {
+        //         callback();
+        //     }
+        // } else {
+        //     this.refs.dialog.showAlert(respmsg.message, 'medium');
+        //     console.log('replaceShopitemList error: ' + respmsg.message);
+        // }
     }
 
     findProductById(id) {
@@ -658,7 +666,7 @@ class ProductsList extends React.Component {
     }
 
     intentToPrintList() {
-        if (this.selectedChanged == true) {
+        if (this.state.selectedChanged == true) {
             //needs save first
             this.saveSelected(this.printList);
         } else {
@@ -704,7 +712,7 @@ class ProductsList extends React.Component {
                 {/* Prompt is used to prevent changing of page when data are not saved */}
                 {/* See UserConfirmation component declared in index.js */}
                 <Prompt
-                    when={this.selectedChanged == true}
+                    when={this.state.selectedChanged == true}
                     message={JSON.stringify({
                         title: messages.warning,
                         messageText: messages.notsavedWarning,
