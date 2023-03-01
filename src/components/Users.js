@@ -25,6 +25,7 @@ import { messages } from '../js/messages';
 import { serverinfo } from '../js/serverinfo';
 import { authentication } from '../js/authentication';
 import { isUserAdmin } from '../js/utils';
+import * as dbapi from '../js/dbapi';
 
 var axios = require('axios');
 
@@ -86,20 +87,40 @@ export default class Users extends React.Component {
 
     // 	}
 
-    loadUsers() {
-        axios({
-            method: 'get',
-            url: serverinfo.url_users(),
-        })
-            .then((response) => response.data)
-            .then((json) => {
-                this.setState({ users: json });
-                // console.log("Patient: result " + this.patobj.lastname);
-            })
-            .catch((error) => {
-                console.log('loadUsers error: ' + error.message);
-            });
+    async loadUsers() {
+        let data;
+        try {
+            data = await dbapi.loadUsers();
+            this.setState({ users: data });
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+        }
     }
+
+    // loadUsers() {
+    //     axios({
+    //         method: 'get',
+    //         url: serverinfo.url_users(),
+    //     })
+    //         .then((response) => response.data)
+    //         .then((json) => {
+    //             this.setState({ users: json });
+    //             // console.log("Patient: result " + this.patobj.lastname);
+    //         })
+    //         .catch((error) => {
+    //             console.log('loadUsers error: ' + error.message);
+    //         });
+    // }
+    // async loadCategories() {
+    //     let data;
+    //     try {
+    //         data = await dbapi.loadCategories();
+    //         data.sort(categoriesCompare);
+    //         this.setState({ categories: data });
+    //     } catch (error) {
+    //         this.refs.dialog.showAlert(error, 'medium');
+    //     }
+    // }
 
     // loadCurrentUserData (){
 
@@ -122,51 +143,73 @@ export default class Users extends React.Component {
 
     // }
 
-    updateUser(userobj, onSuccess, onError) {
-        var resp;
-        var success = true;
+    // updateUser(userobj, onSuccess, onError) {
+    //     var resp;
+    //     var success = true;
 
+    //     let target_url;
+
+    //     if (isUserAdmin(this.state.curruser)) target_url = serverinfo.url_upduser();
+    //     else target_url = serverinfo.url_updpasswd(); //Normal users can only change their own password
+
+    //     axios({
+    //         method: 'post',
+    //         url: target_url,
+    //         data: userobj,
+    //     })
+    //         .then((response) => {
+    //             //Detect  http errors
+    //             if (response.status != 200) {
+    //                 this.refs.dialog.showAlert(response.statusText, 'medium');
+    //                 return null;
+    //             }
+    //             //        	console.log(response);
+    //             return response;
+    //         })
+    //         .then((response) => response.data)
+    //         .then((responseMessage) => {
+    //             //Detect app or db errors
+    //             //            console.log (responseMessage);
+    //             if (responseMessage.status == 0) {
+    //                 //SUCCESS
+    //                 if (authentication.username === userobj.name) {
+    //                     //If user changes his/her own password
+    //                     authentication.password = userobj.passwd; //Update authetication object with the new password
+    //                     authentication.saveCookie(userobj.name, userobj.passwd); //Save cookie with the new password
+    //                 }
+    //                 this.loadUsers();
+    //                 onSuccess();
+    //             } else {
+    //                 this.refs.dialog.showAlert(responseMessage.message, 'medium');
+    //                 //            	onError();
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.log('updateUser error: ' + error.message);
+    //             this.refs.dialog.showAlert(error.message, 'medium');
+    //         });
+    // }
+
+    async updateUser(userobj, closeForm) {
+        let resp;
         let target_url;
 
         if (isUserAdmin(this.state.curruser)) target_url = serverinfo.url_upduser();
         else target_url = serverinfo.url_updpasswd(); //Normal users can only change their own password
 
-        axios({
-            method: 'post',
-            url: target_url,
-            data: userobj,
-        })
-            .then((response) => {
-                //Detect  http errors
-                if (response.status != 200) {
-                    this.refs.dialog.showAlert(response.statusText, 'medium');
-                    return null;
-                }
-                //        	console.log(response);
-                return response;
-            })
-            .then((response) => response.data)
-            .then((responseMessage) => {
-                //Detect app or db errors
-                //            console.log (responseMessage);
-                if (responseMessage.status == 0) {
-                    //SUCCESS
-                    if (authentication.username === userobj.name) {
-                        //If user changes his/her own password
-                        authentication.password = userobj.passwd; //Update authetication object with the new password
-                        authentication.saveCookie(userobj.name, userobj.passwd); //Save cookie with the new password
-                    }
-                    this.loadUsers();
-                    onSuccess();
-                } else {
-                    this.refs.dialog.showAlert(responseMessage.message, 'medium');
-                    //            	onError();
-                }
-            })
-            .catch((error) => {
-                console.log('updateUser error: ' + error.message);
-                this.refs.dialog.showAlert(error.message, 'medium');
-            });
+        try {
+            resp = await dbapi.updateUser(userobj, target_url);
+            if (authentication.username === userobj.name) {
+                //If user changes his/her own password
+                authentication.password = userobj.passwd; //Update authetication object with the new password
+                // authentication.saveCookie(userobj.name, userobj.passwd); //Save cookie with the new password
+            }
+            this.loadUsers();
+            closeForm();
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('updateProduct error: ' + error);
+        }
     }
 
     deleteUser(userid) {

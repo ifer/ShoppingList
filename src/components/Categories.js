@@ -29,6 +29,7 @@ import '../styles/app.css';
 import { messages } from '../js/messages';
 import { serverinfo } from '../js/serverinfo';
 import { authentication } from '../js/authentication';
+import * as dbapi from '../js/dbapi';
 
 var axios = require('axios');
 
@@ -47,7 +48,7 @@ export default class Categories extends React.Component {
         this.fillCategoryobject = this.fillCategoryobject.bind(this);
         this.getSelectedCategory = this.getSelectedCategory.bind(this);
 
-        this.remeasure = this.remeasure.bind(this);
+        // this.remeasure = this.remeasure.bind(this);
 
         this.selectRowProp = {
             mode: 'radio',
@@ -67,119 +68,62 @@ export default class Categories extends React.Component {
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         /* To dynamically change table height */
         let h = getContentHeight();
         this.setState({ tableheight: h });
-        window.addEventListener('resize', this.remeasure);
+        // window.addEventListener('resize', this.remeasure);
 
         this._isMounted = true;
 
         this.loadCategories();
     }
 
+    async loadCategories() {
+        let data;
+        try {
+            data = await dbapi.loadCategories();
+            data.sort(categoriesCompare);
+            this.setState({ categories: data });
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+        }
+    }
+
     componentWillUnmount() {
         this._isMounted = false;
     }
 
-    remeasure() {
-        //		console.log("HEIGHT=" + getContentHeight() );
-        if (this._isMounted) {
-            let h = getContentHeight();
-            this.setState({ tableheight: h });
+    // remeasure() {
+    //     //		console.log("HEIGHT=" + getContentHeight() );
+    //     if (this._isMounted) {
+    //         let h = getContentHeight();
+    //         this.setState({ tableheight: h });
+    //     }
+    // }
+
+    async updateCategory(categoryobj, closeForm) {
+        let resp;
+        try {
+            resp = await dbapi.updateCategory(categoryobj);
+            this.loadCategories();
+            closeForm();
+            this.setState({ dummy: true });
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('updateProduct error: ' + error);
         }
     }
 
-    loadCategories() {
-        axios({
-            method: 'get',
-            url: serverinfo.url_categorylist(),
-        })
-            .then((response) => response.data)
-            .then((json) => {
-                this.setState({ categories: json });
-            })
-            .catch((error) => {
-                console.log('loadCategories error: ' + error.message);
-            });
-    }
-
-    updateCategory(categoryobj, onSuccess, onError) {
-        var resp;
-        var success = true;
-
-        axios({
-            method: 'post',
-            url: serverinfo.url_updatecategory(),
-            data: categoryobj,
-        })
-            .then((response) => {
-                //Detect  http errors
-                if (response.status != 200) {
-                    this.refs.dialog.showAlert(response.statusText, 'medium');
-                    return null;
-                }
-                //        	console.log(response);
-                return response;
-            })
-            .then((response) => response.data)
-            .then((responseMessage) => {
-                //Detect app or db errors
-                //            console.log (responseMessage);
-                if (responseMessage.status == 0) {
-                    //SUCCESS
-                    this.loadCategories();
-                    onSuccess();
-                } else {
-                    this.refs.dialog.showAlert(responseMessage.message, 'medium');
-                    //            	onError();
-                }
-            })
-            .catch((error) => {
-                console.log('updateCategory error: ' + error.message);
-                this.refs.dialog.showAlert(error.message, 'medium');
-            });
-
-        return success;
-    }
-
-    deleteCategory(catid) {
-        axios({
-            method: 'post',
-            url: serverinfo.url_delcategory(),
-            data: catid,
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-        })
-            .then((response) => {
-                //Detect  http errors
-                if (response.status != 200) {
-                    this.refs.dialog.showAlert(response.statusText, 'medium');
-                    return null;
-                }
-                //        	console.log(response);
-                return response;
-            })
-            .then((response) => response.data)
-            .then((responseMessage) => {
-                //Detect app or db errors
-                //            console.log (responseMessage);
-                if (responseMessage.status == 0) {
-                    //SUCCESS
-                    this.loadCategories();
-                } else {
-                    this.refs.dialog.showAlert(responseMessage.message, 'medium');
-                    //            	onError();
-                }
-            })
-            .catch((error) => {
-                console.log('deleteCategory error: ' + error.message);
-                this.refs.dialog.showAlert(error.message, 'medium');
-            });
-
-        return;
+    async deleteCategory(catid) {
+        let resp;
+        try {
+            resp = await dbapi.deleteCategory(catid);
+            this.loadCategories();
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('deleteCategory error: ' + error);
+        }
     }
 
     initCategoryobject() {
@@ -343,4 +287,18 @@ export default class Categories extends React.Component {
 function sharemethodFormatter(cell) {
     let s = messages['method_' + cell];
     return s;
+}
+
+export function categoriesCompare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const catA = a.descr.toUpperCase();
+    const catB = b.descr.toUpperCase();
+
+    let comparison = 0;
+    if (catA > catB) {
+        comparison = 1;
+    } else if (catA < catB) {
+        comparison = -1;
+    }
+    return comparison;
 }

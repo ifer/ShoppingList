@@ -36,6 +36,7 @@ import PopupDialog from './PopupDialog';
 
 import { printShoppingList } from '../print/printShoplist';
 import shopimg from '../styles/img/shopping32.png';
+import { categoriesCompare } from './Categories.js';
 
 // import Patient from './Patient';
 
@@ -90,55 +91,51 @@ class ProductsManage extends React.Component {
         this.loadCategories();
     }
 
-    loadShopitems() {
-        dbapi.loadShopitems(
-            (data) => {
-                this.setState({ shopitems: data });
-                // console.log("shopitems=" + JSON.stringify(this.state.shopitems));
-                this.loadProducts();
-            },
-            (err) => {
-                console.log('loadShopitems error: ' + err);
-            }
-        );
+    async loadShopitems() {
+        let data;
+        try {
+            data = await dbapi.loadShopitems();
+            this.setState({ shopitems: data });
+            this.loadProducts();
+        } catch (err) {
+            console.log('loadShopitems error: ' + err);
+        }
     }
 
-    loadProducts() {
-        dbapi.loadProducts(
-            (data) => {
-                data.sort(productsCompare);
-                // console.log("data=" + JSON.stringify(data));
-                this.selected = [];
-                for (let i = 0; i < data.length; i++) {
-                    let shopitem = this.findShopitemByProdid(data[i].prodid);
-                    if (shopitem != null) {
-                        data[i].selected = true;
-                        data[i].quantity = shopitem.quantity;
-                        this.selected.push(shopitem.prodid);
-                    } else {
-                        data[i].quantity = '0';
-                        data[i].selected = false;
-                    }
+    async loadProducts() {
+        let data;
+        try {
+            data = await dbapi.loadProducts();
+            data.sort(productsCompare);
+            // console.log("data=" + JSON.stringify(data));
+            this.selected = [];
+            for (let i = 0; i < data.length; i++) {
+                let shopitem = this.findShopitemByProdid(data[i].prodid);
+                if (shopitem != null) {
+                    data[i].selected = true;
+                    data[i].quantity = shopitem.quantity;
+                    this.selected.push(shopitem.prodid);
+                } else {
+                    data[i].quantity = '0';
+                    data[i].selected = false;
                 }
-                this.setState({ products: data });
-                this.refs.productslist.loadSelected();
-            },
-            (err) => {
-                console.log('loadProducts error: ' + err);
             }
-        );
+            this.setState({ products: data });
+            this.refs.productslist.loadSelected();
+        } catch (err) {
+            console.log('loadProducts error: ' + err);
+        }
     }
 
-    loadCategories() {
-        dbapi.loadCategories(
-            (data) => {
-                data.sort(categoriesCompare);
-                this.setState({ categories: data });
-            },
-            (err) => {
-                console.log('loadCategories error: ' + err);
-            }
-        );
+    async loadCategories() {
+        let data;
+        try {
+            data = await dbapi.loadCategories();
+            data.sort(categoriesCompare);
+            this.setState({ categories: data });
+        } catch (err) {
+            console.log('loadShopitems error: ' + err);
+        }
     }
 
     findShopitemByProdid(prodid) {
@@ -153,33 +150,30 @@ class ProductsManage extends React.Component {
         return null;
     }
 
-    updateProduct(prodobj, onSuccess, onError) {
-        dbapi.updateProduct(
-            prodobj,
-            (data) => {
-                this.loadShopitems();
-                onSuccess();
-                this.setState({ dummy: true });
-                // this.refs.productslist.unselectAll(false);
-            },
-            (error) => {
-                this.refs.dialog.showAlert(error, 'medium');
-                console.log('updateProduct error: ' + error);
-            }
-        );
+    async updateProduct(prodobj, closeForm) {
+        let resp;
+        try {
+            resp = await dbapi.updateProduct(prodobj);
+            this.loadShopitems();
+            closeForm();
+            this.setState({ dummy: true });
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('updateProduct error: ' + error);
+        }
     }
 
-    deleteProduct(prodobj) {
-        dbapi.deleteProduct(
-            prodobj,
-            (data) => {
-                this.loadProducts();
-            },
-            (error) => {
-                this.refs.dialog.showAlert(error, 'medium');
-                console.log('deleteProduct error: ' + error);
-            }
-        );
+    async deleteProduct(prodobj) {
+        let resp;
+        try {
+            resp = await dbapi.deleteProduct(prodobj);
+            this.loadShopitems();
+            // onSuccess();
+            this.setState({ dummy: true });
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('deleteProduct error: ' + error);
+        }
     }
 
     addQuantityField(products) {
@@ -297,7 +291,7 @@ class ProductsList extends React.Component {
         this.openDelProductForm = this.openDelProductForm.bind(this);
         this.onRowSelect = this.onRowSelect.bind(this);
         this.getSelectedProduct = this.getSelectedProduct.bind(this);
-        this.remeasure = this.remeasure.bind(this);
+        // this.remeasure = this.remeasure.bind(this);
         this.onRowDoubleClick = this.onRowDoubleClick.bind(this);
         this.setSelectedProdid = this.setSelectedProdid.bind(this);
         this.isEditable = this.isEditable.bind(this);
@@ -360,7 +354,7 @@ class ProductsList extends React.Component {
         let h = getContentHeight();
         this.setState({ tableheight: h });
 
-        window.addEventListener('resize', this.remeasure);
+        // window.addEventListener('resize', this.remeasure);
     }
 
     componentWillUnmount() {
@@ -373,13 +367,13 @@ class ProductsList extends React.Component {
     }
 
     /* To dynamically change table height */
-    remeasure() {
-        // console.log("HEIGHT=" + getContentHeight() );
-        if (this._isMounted) {
-            let h = getContentHeight();
-            this.setState({ tableheight: h });
-        }
-    }
+    // remeasure() {
+    //     // console.log("HEIGHT=" + getContentHeight() );
+    //     if (this._isMounted) {
+    //         let h = getContentHeight();
+    //         this.setState({ tableheight: h });
+    //     }
+    // }
 
     loadSelected() {
         this.selected = this.props.selected;
@@ -583,7 +577,7 @@ class ProductsList extends React.Component {
     async saveSelected(callback) {
         // Delete all if none is selected
         if (this.selected.length == 0) {
-            const respmsg = dbapi.deleteAllShopitems();
+            const respmsg = await dbapi.deleteAllShopitems();
             if (respmsg.status == 0) {
                 // this.selectedChanged = false;
                 this.setState({ selectedChanged: false });
@@ -674,16 +668,26 @@ class ProductsList extends React.Component {
         }
     }
 
-    printList() {
-        // console.log("Printing..");
-        dbapi.loadShopitemPrintList(
-            (data) => {
-                printShoppingList(data);
-            },
-            (err) => {
-                console.log('loadShopitemPrintList error: ' + err);
-            }
-        );
+    // printList() {
+    //     // console.log("Printing..");
+    //     dbapi.loadShopitemPrintList(
+    //         (data) => {
+    //             printShoppingList(data);
+    //         },
+    //         (err) => {
+    //             console.log('loadShopitemPrintList error: ' + err);
+    //         }
+    //     );
+    // }
+
+    async printList() {
+        let data;
+        try {
+            data = await dbapi.loadShopitemPrintList();
+            printShoppingList(data);
+        } catch (err) {
+            console.log('loadShopitemPrintList error: ' + err);
+        }
     }
 
     render() {
@@ -891,16 +895,16 @@ function productsCompare(a, b) {
     return comparison;
 }
 
-function categoriesCompare(a, b) {
-    // Use toUpperCase() to ignore character casing
-    const catA = a.descr.toUpperCase();
-    const catB = b.descr.toUpperCase();
+// function categoriesCompare(a, b) {
+//     // Use toUpperCase() to ignore character casing
+//     const catA = a.descr.toUpperCase();
+//     const catB = b.descr.toUpperCase();
 
-    let comparison = 0;
-    if (catA > catB) {
-        comparison = 1;
-    } else if (catA < catB) {
-        comparison = -1;
-    }
-    return comparison;
-}
+//     let comparison = 0;
+//     if (catA > catB) {
+//         comparison = 1;
+//     } else if (catA < catB) {
+//         comparison = -1;
+//     }
+//     return comparison;
+// }
