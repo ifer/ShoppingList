@@ -97,99 +97,6 @@ export default class Users extends React.Component {
         }
     }
 
-    // loadUsers() {
-    //     axios({
-    //         method: 'get',
-    //         url: serverinfo.url_users(),
-    //     })
-    //         .then((response) => response.data)
-    //         .then((json) => {
-    //             this.setState({ users: json });
-    //             // console.log("Patient: result " + this.patobj.lastname);
-    //         })
-    //         .catch((error) => {
-    //             console.log('loadUsers error: ' + error.message);
-    //         });
-    // }
-    // async loadCategories() {
-    //     let data;
-    //     try {
-    //         data = await dbapi.loadCategories();
-    //         data.sort(categoriesCompare);
-    //         this.setState({ categories: data });
-    //     } catch (error) {
-    //         this.refs.dialog.showAlert(error, 'medium');
-    //     }
-    // }
-
-    // loadCurrentUserData (){
-
-    // 	axios({
-    // 		method: "get",
-    // 		url: serverinfo.url_curruserdata(),
-    // 		auth: {
-    // 			username: authentication.username,
-    // 			password: authentication.password
-    // 		}
-    // 	})
-    // 	.then(response => response.data)
-    // 	.then(json => {
-    // 		this.setState({curruser: json});
-
-    // 	})
-    // 	.catch(error => {
-    // 		console.log("loadUsers error: " + error.message);
-    // 	});
-
-    // }
-
-    // updateUser(userobj, onSuccess, onError) {
-    //     var resp;
-    //     var success = true;
-
-    //     let target_url;
-
-    //     if (isUserAdmin(this.state.curruser)) target_url = serverinfo.url_upduser();
-    //     else target_url = serverinfo.url_updpasswd(); //Normal users can only change their own password
-
-    //     axios({
-    //         method: 'post',
-    //         url: target_url,
-    //         data: userobj,
-    //     })
-    //         .then((response) => {
-    //             //Detect  http errors
-    //             if (response.status != 200) {
-    //                 this.refs.dialog.showAlert(response.statusText, 'medium');
-    //                 return null;
-    //             }
-    //             //        	console.log(response);
-    //             return response;
-    //         })
-    //         .then((response) => response.data)
-    //         .then((responseMessage) => {
-    //             //Detect app or db errors
-    //             //            console.log (responseMessage);
-    //             if (responseMessage.status == 0) {
-    //                 //SUCCESS
-    //                 if (authentication.username === userobj.name) {
-    //                     //If user changes his/her own password
-    //                     authentication.password = userobj.passwd; //Update authetication object with the new password
-    //                     authentication.saveCookie(userobj.name, userobj.passwd); //Save cookie with the new password
-    //                 }
-    //                 this.loadUsers();
-    //                 onSuccess();
-    //             } else {
-    //                 this.refs.dialog.showAlert(responseMessage.message, 'medium');
-    //                 //            	onError();
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.log('updateUser error: ' + error.message);
-    //             this.refs.dialog.showAlert(error.message, 'medium');
-    //         });
-    // }
-
     async updateUser(userobj, closeForm) {
         let resp;
         let target_url;
@@ -212,40 +119,15 @@ export default class Users extends React.Component {
         }
     }
 
-    deleteUser(userid) {
-        let jsondata = JSON.stringify(userid);
-        console.log('userid=' + jsondata);
-
-        axios({
-            method: 'post',
-            url: serverinfo.url_deluser(),
-            data: userid,
-        })
-            .then((response) => {
-                //Detect  http errors
-                if (response.status != 200) {
-                    this.refs.dialog.showAlert(response.statusText, 'medium');
-                    return null;
-                }
-                //        	console.log(response);
-                return response;
-            })
-            .then((response) => response.data)
-            .then((responseMessage) => {
-                //Detect app or db errors
-                //            console.log (responseMessage);
-                if (responseMessage.status == 0) {
-                    //SUCCESS
-                    this.loadUsers();
-                } else {
-                    this.refs.dialog.showAlert(responseMessage.message, 'medium');
-                    //            	onError();
-                }
-            })
-            .catch((error) => {
-                console.log('deleteUser error: ' + error.message);
-                this.refs.dialog.showAlert(error.message, 'medium');
-            });
+    async deleteUser(userid) {
+        let resp;
+        try {
+            resp = await dbapi.deleteUser(userid);
+            this.loadUsers();
+        } catch (error) {
+            this.refs.dialog.showAlert(error, 'medium');
+            console.log('deleteUser error: ' + error);
+        }
     }
 
     initUserObject() {
@@ -267,7 +149,7 @@ export default class Users extends React.Component {
     }
 
     openAddUserForm() {
-        console.log(`curuser: ${JSON.stringify(this.state.curruser)}`);
+        // console.log(`curuser: ${JSON.stringify(this.state.curruser)}`);
         if (!isUserAdmin(this.state.curruser)) {
             this.refs.dialog.showAlert(messages.userActionNotPermitted, 'medium');
             return;

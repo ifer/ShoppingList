@@ -2,11 +2,26 @@ import { messages } from './messages';
 import { serverinfo } from './serverinfo';
 import { authentication } from '../js/authentication';
 
-var axios = require('axios');
+import { axiosInst } from '../components/App.js';
+
+// var axios = require('axios');
+
+// export const axiosInst = axios.create();
+// axiosInst.interceptors.response.use(
+//     (response) => {
+//         return response;
+//     },
+//     (error) => {
+//         if (error.response.status === 401) {
+//             return history.push('/login');
+//         }
+//         return error;
+//     }
+// );
 
 async function loadProducts() {
     try {
-        const response = await axios({ method: 'get', url: serverinfo.url_productlist() });
+        const response = await axiosInst({ method: 'get', url: serverinfo.url_productlist() });
         const data = response.data;
         return data;
         // console.log('loadProducts: result ' + JSON.stringify(data));
@@ -20,7 +35,7 @@ async function loadProducts() {
 //     // this.saveSearchForm (sf);
 //     // url: serverinfo.url_productlist(),
 //     console.log('Loading products...');
-//     axios({
+//     axiosInst({
 //         method: 'get',
 //         url: serverinfo.url_productlist(),
 //     })
@@ -37,7 +52,7 @@ async function loadProducts() {
 
 async function loadCategories(c) {
     try {
-        const response = await axios({ method: 'get', url: serverinfo.url_categorylist() });
+        const response = await axiosInst({ method: 'get', url: serverinfo.url_categorylist() });
         const data = response.data;
         return data;
         // console.log('loadCategories: result ' + JSON.stringify(data));
@@ -48,7 +63,7 @@ async function loadCategories(c) {
 }
 
 // function loadCategories(callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'get',
 //         url: serverinfo.url_categorylist(),
 //     })
@@ -65,7 +80,7 @@ async function loadCategories(c) {
 // }
 
 // function loadShopitems(callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'get',
 //         url: serverinfo.url_shopitemlist(),
 //     })
@@ -83,7 +98,7 @@ async function loadCategories(c) {
 
 async function loadShopitems() {
     try {
-        const response = await axios({ method: 'get', url: serverinfo.url_shopitemlist() });
+        const response = await axiosInst({ method: 'get', url: serverinfo.url_shopitemlist() });
         const data = response.data;
         return data;
         // console.log('loadShopitems: result ' + JSON.stringify(data));
@@ -93,7 +108,7 @@ async function loadShopitems() {
 }
 
 // function loadShopitemPrintList(callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'get',
 //         url: serverinfo.url_shopitemprintlist(),
 //     })
@@ -110,7 +125,7 @@ async function loadShopitems() {
 
 async function loadShopitemPrintList(callback, errorcallback) {
     try {
-        const response = await axios({ method: 'get', url: serverinfo.url_shopitemprintlist() });
+        const response = await axiosInst({ method: 'get', url: serverinfo.url_shopitemprintlist() });
         const data = response.data;
         return data;
         // console.log('loadShopitemPrintList: result ' + JSON.stringify(data));
@@ -122,7 +137,7 @@ async function updateProduct(prodobj) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_updateproduct(), data: prodobj });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_updateproduct(), data: prodobj });
         } catch (error) {
             reject(response.statusText);
         }
@@ -142,7 +157,7 @@ async function updateProduct(prodobj) {
 }
 
 // function updateProduct(prodobj, callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'post',
 //         url: serverinfo.url_updateproduct(),
 //         data: prodobj,
@@ -181,7 +196,7 @@ async function updateProduct(prodobj) {
 // }
 
 // function deleteProduct(prodobj, callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'post',
 //         url: serverinfo.url_delproduct(),
 //         data: prodobj,
@@ -220,7 +235,7 @@ async function deleteProduct(prodobj) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_delproduct(), data: prodobj });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_delproduct(), data: prodobj });
         } catch (error) {
             reject(response.statusText);
         }
@@ -243,7 +258,7 @@ async function replaceShopitemList(slist) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_replaceshopitemlist(), data: slist });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_replaceshopitemlist(), data: slist });
         } catch (error) {
             reject(response.statusText);
         }
@@ -263,7 +278,7 @@ async function replaceShopitemList(slist) {
 }
 
 // function addShopitemList(slist, callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'post',
 //         url: serverinfo.url_addshopitemlist(),
 //         data: slist,
@@ -302,7 +317,7 @@ async function addShopitemList(slist) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_addshopitemlist(), data: slist });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_addshopitemlist(), data: slist });
         } catch (error) {
             reject(response.statusText);
         }
@@ -322,7 +337,7 @@ async function addShopitemList(slist) {
 }
 
 // function deleteAllShopitems(callback, errorcallback) {
-//     axios({
+//     axiosInst({
 //         method: 'post',
 //         url: serverinfo.url_delallshopitems(),
 //     })
@@ -360,7 +375,7 @@ async function deleteAllShopitems() {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_delallshopitems() });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_delallshopitems() });
         } catch (error) {
             reject(response.statusText);
         }
@@ -383,7 +398,7 @@ async function updateCategory(categoryobj) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_updatecategory(), data: categoryobj });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_updatecategory(), data: categoryobj });
         } catch (error) {
             reject(response.statusText);
         }
@@ -406,7 +421,7 @@ async function deleteCategory(catid) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_delcategory(), data: catid });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_delcategory(), data: catid });
         } catch (error) {
             reject(response.statusText);
         }
@@ -427,7 +442,7 @@ async function deleteCategory(catid) {
 
 async function loadUsers() {
     try {
-        const response = await axios({ method: 'get', url: serverinfo.url_users() });
+        const response = await axiosInst({ method: 'get', url: serverinfo.url_users() });
         const data = response.data;
         return data;
         // console.log('loadProducts: result ' + JSON.stringify(data));
@@ -441,7 +456,7 @@ async function updateUser(userobj, url) {
     const promise = new Promise(async (resolve, reject) => {
         let response;
         try {
-            response = await axios({ method: 'post', url: serverinfo.url_upduser(), data: userobj });
+            response = await axiosInst({ method: 'post', url: serverinfo.url_upduser(), data: userobj });
         } catch (error) {
             reject(response.statusText);
         }
@@ -460,6 +475,28 @@ async function updateUser(userobj, url) {
     return promise;
 }
 
+async function deleteUser(userid) {
+    const promise = new Promise(async (resolve, reject) => {
+        let response;
+        try {
+            response = await axiosInst({ method: 'post', url: serverinfo.url_deluser(), data: userid });
+        } catch (error) {
+            reject(response.statusText);
+        }
+        if (response.status == 200) {
+            const responseMessage = response.data;
+            if (responseMessage.status == 0) {
+                resolve(responseMessage.data);
+            } else {
+                reject(responseMessage.message);
+            }
+        } else {
+            reject(responseMessage.message);
+        }
+    });
+
+    return promise;
+}
 export {
     loadProducts,
     loadCategories,
@@ -474,5 +511,5 @@ export {
     deleteCategory,
     loadUsers,
     updateUser,
-    // deleteUser,
+    deleteUser,
 };

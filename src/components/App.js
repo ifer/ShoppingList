@@ -3,7 +3,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { Switch, Route, Router, Link, Redirect } from 'react-router-dom';
+import { Switch, Route, BrowserRouter as Router, Routes, Link, Redirect } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import { isExpired, decodeToken } from 'react-jwt';
 
@@ -15,9 +15,9 @@ import Home from './Home';
 import ProductsManage from './ProductsManage';
 import LoginForm from './LoginForm';
 import Categories from './Categories';
-
-// import Footer from './Footer';
 import Users from './Users';
+// import Footer from './Footer';
+
 import { authentication } from '../js/authentication';
 import { eventManager } from '../js/eventmanager';
 // import UserConfirmation from "../js/userConfirmation";
@@ -25,6 +25,21 @@ import { eventManager } from '../js/eventmanager';
 var loggedIn = false;
 var currentPath = null;
 const history = createBrowserHistory();
+
+var axios = require('axios');
+
+export const axiosInst = axios.create();
+axiosInst.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response.status === 401) {
+            return history.push('/login');
+        }
+        return error;
+    }
+);
 
 export default class App extends React.Component {
     constructor(props) {
@@ -48,6 +63,7 @@ export default class App extends React.Component {
         const token = localStorage.getItem('token');
         if (token && !isExpired(token)) {
             authentication.setAuthToken(token);
+
             const uo = await authentication.loadCurrentUserObject();
             this.setState({ userobj: uo });
             eventManager.getEmitter().emit(eventManager.authChannel, true, this.state.userobj.name);
@@ -91,12 +107,13 @@ export default class App extends React.Component {
                     </Router>
                 </div> */}
                 <div id="appcontent" className="app-content">
-                    <Switch>
+                    <Switch history={history}>
                         <RouteGuard exact={true} path="/" component={ProductsManage} />
-                        <Route path="/products" component={ProductsManage} />
-                        <Route path="/categories" component={Categories} />
+                        <RouteGuard path="/products" component={ProductsManage} />
+                        <RouteGuard path="/categories" component={Categories} />
                         <Route path="/login" component={LoginForm} />
                         <RouteGuard path="/users" component={Users} />
+                        <Redirect to="/login" />
                     </Switch>
                 </div>
                 {/* <Footer /> */}
@@ -115,6 +132,7 @@ const RouteGuard = ({ component: Component, ...rest }) => {
         if (token && !isExpired(token)) {
             flag = true;
             authentication.setAuthToken(token);
+
             authentication.loadCurrentUserObject();
         } else {
             flag = false;
