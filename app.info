@@ -1,10 +1,12 @@
 PROD server: www.ifernet.gr (139.162.227.243)
 WEB (apache) server port: 449 (SSL)
-REST API server port: 8449 (SSL)
+REST API server port: 8451 (SSL)
+old REST API server port: 8449 (SSL)
 
 STAGING server: plato (192.168.1.11)
 WEB (apache) server port: 449 (SSL)
-REST API server port: 8449 (SSL)
+REST API server port: 8451 (SSL)
+old REST API server port: 8449 (SSL)
 
 DEVELOP:
 REST API server port: 8090
